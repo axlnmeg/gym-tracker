@@ -4091,9 +4091,9 @@ function renderRunner() {
       <button class="btn-icon" id="runner-back-btn" style="position:absolute;top:16px;left:16px;z-index:1000;background:rgba(0,0,0,0.6);color:#fff;backdrop-filter:blur(4px)">
         <span class="material-symbols-rounded">arrow_back</span>
       </button>
-      <div style="position:absolute;top:16px;right:16px;z-index:1000;background:rgba(0,0,0,0.6);color:var(--primary);padding:6px 12px;border-radius:20px;font-size:0.75rem;font-weight:600;display:flex;align-items:center;gap:6px;backdrop-filter:blur(4px)">
-        <span class="material-symbols-rounded" style="font-size:14px">map</span>
-        Live GPS Map
+      <div id="gps-status-badge" style="position:absolute;top:16px;right:16px;z-index:1000;background:rgba(0,0,0,0.6);color:var(--on-surface-variant);padding:6px 12px;border-radius:20px;font-size:0.75rem;font-weight:600;display:flex;align-items:center;gap:6px;backdrop-filter:blur(4px)">
+        <span class="material-symbols-rounded" style="font-size:14px" id="gps-icon">location_searching</span>
+        <span id="gps-label">Acquiring GPS...</span>
       </div>
       <div id="runner-map" style="flex:1;min-height:250px;z-index:1"></div>
       <!-- Live Map Overlay Stats -->
@@ -4144,6 +4144,9 @@ function renderRunner() {
     maxZoom: 19,
   }).addTo(map);
 
+  // Force map to recalculate its size after render
+  setTimeout(() => map.invalidateSize(), 300);
+
   // Custom runner marker
   const runnerIcon = L.divIcon({
     className: 'runner-marker',
@@ -4155,15 +4158,6 @@ function renderRunner() {
   let routePath = L.polyline([], { color: '#6bff8f', weight: 4, opacity: 0.9, smoothFactor: 1 }).addTo(map);
   let routeCoords = [];
 
-  // Try to center map on user's location immediately
-  if ('geolocation' in navigator) {
-    navigator.geolocation.getCurrentPosition((pos) => {
-      const { latitude, longitude } = pos.coords;
-      map.setView([latitude, longitude], 16);
-      runnerMarker.setLatLng([latitude, longitude]);
-    }, () => {}, { enableHighAccuracy: true, timeout: 5000 });
-  }
-
   // --- Run State ---
   let isRunning = false;
   let startTime = 0;
@@ -4174,11 +4168,51 @@ function renderRunner() {
   let currentSpeed = 0;
   let elevationGain = 0;
   let lastPos = null;
+  let gpsLocked = false;
 
   // Mock GPS state for simulating movement
   let mockLat = defaultLat;
   let mockLng = defaultLng;
   let mockAngle = Math.random() * Math.PI * 2;
+
+  function setGpsStatus(status) {
+    const badge = $('#gps-status-badge');
+    const icon = $('#gps-icon');
+    const label = $('#gps-label');
+    if (!badge || !icon || !label) return;
+    if (status === 'locked') {
+      icon.textContent = 'my_location';
+      label.textContent = 'GPS Live';
+      badge.style.color = 'var(--primary)';
+      badge.style.borderColor = 'rgba(107,255,143,0.3)';
+    } else if (status === 'mock') {
+      icon.textContent = 'location_disabled';
+      label.textContent = 'Simulated';
+      badge.style.color = 'var(--tertiary)';
+    } else {
+      icon.textContent = 'location_searching';
+      label.textContent = 'Acquiring GPS...';
+      badge.style.color = 'var(--on-surface-variant)';
+    }
+  }
+
+  // Try to center map on user's location immediately
+  if ('geolocation' in navigator) {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      const { latitude, longitude } = pos.coords;
+      map.setView([latitude, longitude], 16);
+      runnerMarker.setLatLng([latitude, longitude]);
+      // Update mock start coordinates to user's real position
+      mockLat = latitude;
+      mockLng = longitude;
+      gpsLocked = true;
+      setGpsStatus('locked');
+    }, () => {
+      setGpsStatus('mock');
+    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+  } else {
+    setGpsStatus('mock');
+  }
 
   function calcDistance(lat1, lon1, lat2, lon2) {
     const R = 6371;
@@ -4244,13 +4278,18 @@ function renderRunner() {
   }
 
   function handleGeoPosition(pos) {
-    const { latitude, longitude, speed, altitude } = pos.coords;
+    const { latitude, longitude, speed, altitude, accuracy } = pos.coords;
+    // Update mock coords so fallback continues from real position
+    mockLat = latitude;
+    mockLng = longitude;
+
     if (lastPos) {
       const d = calcDistance(lastPos.coords.latitude, lastPos.coords.longitude, latitude, longitude);
-      if (d > 0.005) {
+      // Only count movement if > 2m (filter GPS jitter) and accuracy is reasonable
+      if (d > 0.002 && (!accuracy || accuracy < 50)) {
         totalDistance += d;
-        if (speed) {
-          currentSpeed = (1 / (speed * 3.6)) * 60;
+        if (speed && speed > 0) {
+          currentSpeed = (1 / (speed * 3.6)) * 60; // m/s → min/km
         } else {
           currentSpeed = totalDistance > 0 ? (elapsedTime / 60000) / totalDistance : 0;
         }
@@ -4258,8 +4297,12 @@ function renderRunner() {
           elevationGain += (altitude - lastPos.coords.altitude);
         }
         addRoutePoint(latitude, longitude);
+      } else if (d > 0.002) {
+        // Low accuracy but still moving — update route without counting distance
+        addRoutePoint(latitude, longitude);
       }
     } else {
+      // First position — set the route start
       addRoutePoint(latitude, longitude);
     }
     lastPos = pos;
@@ -4280,12 +4323,34 @@ function renderRunner() {
       }, 1000);
 
       if ('geolocation' in navigator) {
-        geoWatchId = navigator.geolocation.watchPosition(handleGeoPosition, () => {
-          // GPS denied/failed — use mock and center map on mock location
-          map.setView([mockLat, mockLng], 16);
-          if (!window.mockGpsInterval) window.mockGpsInterval = setInterval(mockGPS, 1000);
-        }, { enableHighAccuracy: true });
+        let gpsTimeout = setTimeout(() => {
+          // If no GPS position received within 8s, start mock
+          if (!gpsLocked && !window.mockGpsInterval) {
+            setGpsStatus('mock');
+            map.setView([mockLat, mockLng], 16);
+            window.mockGpsInterval = setInterval(mockGPS, 1000);
+          }
+        }, 8000);
+
+        geoWatchId = navigator.geolocation.watchPosition(
+          (pos) => {
+            clearTimeout(gpsTimeout);
+            gpsLocked = true;
+            setGpsStatus('locked');
+            // Stop mock if running
+            if (window.mockGpsInterval) { clearInterval(window.mockGpsInterval); window.mockGpsInterval = null; }
+            handleGeoPosition(pos);
+          },
+          () => {
+            clearTimeout(gpsTimeout);
+            setGpsStatus('mock');
+            map.setView([mockLat, mockLng], 16);
+            if (!window.mockGpsInterval) window.mockGpsInterval = setInterval(mockGPS, 1000);
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+        );
       } else {
+        setGpsStatus('mock');
         map.setView([mockLat, mockLng], 16);
         if (!window.mockGpsInterval) window.mockGpsInterval = setInterval(mockGPS, 1000);
       }
