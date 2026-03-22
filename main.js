@@ -643,6 +643,52 @@ function renderSignup() {
 }
 
 // ============================================
+// WATER REMINDER (every 30 min)
+// ============================================
+let waterReminderInterval = null;
+
+function startWaterReminder() {
+  stopWaterReminder();
+  const prefs = Store.getNotifPrefs();
+  if (!Store.getData('water_reminder_on', true) || !prefs.hydration) return;
+
+  waterReminderInterval = setInterval(() => {
+    const water = Store.getData('water_today', 0);
+    const waterGoal = Store.getData('water_goal', 3000);
+    if (water >= waterGoal) return; // Already hit goal
+
+    const remaining = ((waterGoal - water) / 1000).toFixed(1);
+
+    // Browser notification
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification('💧 KINETIC — Hydration Reminder', {
+        body: `Time to drink water! ${remaining}L remaining to hit your daily goal.`,
+        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💧</text></svg>',
+        tag: 'water-reminder',
+      });
+    }
+
+    // In-app notification
+    addNotification('💧', 'Hydration Reminder', `Drink some water! ${remaining}L remaining today.`);
+
+    // Show toast if app is visible
+    showGoalToast('Hydration Reminder', `${remaining}L remaining — grab some water!`, '💧');
+  }, 30 * 60 * 1000); // 30 minutes
+}
+
+function stopWaterReminder() {
+  if (waterReminderInterval) {
+    clearInterval(waterReminderInterval);
+    waterReminderInterval = null;
+  }
+}
+
+// Auto-start water reminder if enabled
+if (Store.getData('water_reminder_on', true)) {
+  startWaterReminder();
+}
+
+// ============================================
 // GYM TIMER LOGIC
 // ============================================
 let gymTimerInterval = null;
@@ -976,6 +1022,12 @@ function renderDashboard() {
       </div>
       <input type="file" id="import-file-input" accept=".json" style="display:none"/>
 
+      <!-- Reset All Data -->
+      <button class="btn-secondary" id="reset-all-btn" style="margin-bottom:var(--spacing-3);border-color:var(--error);color:var(--error)">
+        <span class="material-symbols-rounded" style="font-size:18px">restart_alt</span>
+        Reset All Data
+      </button>
+
       <!-- Logout -->
       <button class="btn-secondary" id="logout-btn" style="margin-bottom:var(--spacing-6)">
         <span class="material-symbols-rounded">logout</span>
@@ -989,6 +1041,16 @@ function renderDashboard() {
 
   // Crew Feed link
   $('#go-crew-feed')?.addEventListener('click', () => Router.navigate('crew'));
+
+  // Reset All Data with confirmation
+  $('#reset-all-btn')?.addEventListener('click', () => {
+    if (!confirm('⚠️ Are you sure you want to reset ALL data?\n\nThis will erase all your meals, steps, water, workouts, and preferences. This cannot be undone.')) return;
+    if (!confirm('This is your last chance — ALL data will be permanently deleted. Continue?')) return;
+    Store.clearAllData();
+    Store.initNewUserData();
+    showGoalToast('Data Reset', 'All your data has been reset to defaults.', '🔄');
+    setTimeout(() => renderDashboard(), 1000);
+  });
 
   // Export Data
   $('#export-data-btn')?.addEventListener('click', () => {
@@ -3776,9 +3838,9 @@ function renderWater() {
         <div class="toggle-row">
           <div>
             <div class="title-sm">Water Reminders</div>
-            <div class="body-sm text-surface-variant">Get notified every 90 minutes</div>
+            <div class="body-sm text-surface-variant">Get notified every 30 minutes</div>
           </div>
-          <div class="toggle-switch active" id="water-reminder-toggle">
+          <div class="toggle-switch ${Store.getData('water_reminder_on', true) ? 'active' : ''}" id="water-reminder-toggle">
             <div class="toggle-knob"></div>
           </div>
         </div>
@@ -3801,9 +3863,15 @@ function renderWater() {
     });
   });
 
-  // Toggle
+  // Water reminder toggle
   $('#water-reminder-toggle')?.addEventListener('click', function() {
-    this.classList.toggle('active');
+    const isActive = this.classList.toggle('active');
+    Store.setData('water_reminder_on', isActive);
+    if (isActive) {
+      startWaterReminder();
+    } else {
+      stopWaterReminder();
+    }
   });
 }
 
