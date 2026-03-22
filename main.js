@@ -919,28 +919,81 @@ function renderDashboard() {
         <div class="macro-pill"><div class="macro-val" style="color:var(--secondary)">${allMealTotals.f}g</div><div class="macro-lbl">Fats</div></div>
       </div>
 
-      <!-- Quick Stats -->
-      <div class="section-header"><h3 class="section-title">Today's Activity</h3></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-3);margin-bottom:var(--spacing-8)">
-        <div class="stat-card" style="cursor:pointer" onclick="window.location.hash='steps'">
-          <div style="display:flex;align-items:center;gap:var(--spacing-2)">
-            <span class="material-symbols-rounded text-primary" style="font-size:20px">directions_walk</span>
-            <span class="stat-label">Steps</span>
+      <!-- Step Tracking Big Section -->
+      <div style="background:linear-gradient(135deg, var(--surface-container) 0%, var(--surface-container-high) 100%);border-radius:var(--radius-xl);padding:var(--spacing-6);margin-bottom:var(--spacing-6);border:1px solid rgba(64,72,93,0.12)">
+        <!-- Step Count Center -->
+        <div style="text-align:center;margin-bottom:var(--spacing-5)" onclick="window.location.hash='steps'" role="button">
+          <div class="progress-ring-container" style="display:inline-block;margin-bottom:var(--spacing-3)">
+            ${createSVGRing(200, 12, Math.min(100, stepsPercent), 'var(--primary)', 'var(--surface-container-high)')}
+            <div class="ring-center-text" style="top:50%;left:50%;transform:translate(-50%,-50%)">
+              <span class="material-symbols-rounded" style="font-size:28px;color:var(--primary);display:block;margin-bottom:2px">directions_walk</span>
+              <div style="font-family:var(--font-display);font-size:3rem;font-weight:900;color:var(--primary);line-height:1" id="dash-step-count">${steps.toLocaleString()}</div>
+              <div class="label-sm text-surface-variant" style="margin-top:4px;letter-spacing:1.5px">STEPS</div>
+            </div>
           </div>
-          <div class="stat-value">${steps.toLocaleString()}</div>
-          <div style="height:4px;background:var(--surface-variant);border-radius:var(--radius-full);overflow:hidden">
-            <div style="height:100%;width:${stepsPercent}%;background:linear-gradient(90deg,var(--primary),var(--primary-container));border-radius:var(--radius-full);transition:width 1s ease"></div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:var(--spacing-2);margin-bottom:var(--spacing-1)">
+            <span class="material-symbols-rounded" style="font-size:16px;color:var(--primary)">flag</span>
+            <span class="body-md" style="font-weight:600">${stepsPercent}% of ${stepsGoal.toLocaleString()} goal</span>
+          </div>
+          <!-- Progress bar -->
+          <div style="height:8px;background:var(--surface-container-high);border-radius:var(--radius-full);overflow:hidden;margin:var(--spacing-2) auto;max-width:280px">
+            <div style="height:100%;width:${Math.min(100, stepsPercent)}%;background:linear-gradient(90deg,var(--primary),var(--primary-container));border-radius:var(--radius-full);transition:width 1s ease"></div>
           </div>
         </div>
-        <div class="stat-card" style="cursor:pointer" onclick="window.location.hash='water'">
+        <!-- Stats Row -->
+        <div style="display:flex;justify-content:center;gap:var(--spacing-6);margin-bottom:var(--spacing-5)">
+          <div style="text-align:center">
+            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:2px">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--tertiary)">local_fire_department</span>
+              <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--on-surface)">${Math.round(steps * 0.04)}</span>
+            </div>
+            <div class="label-sm text-surface-variant">KCAL</div>
+          </div>
+          <div style="width:1px;background:var(--surface-variant);align-self:stretch"></div>
+          <div style="text-align:center">
+            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:2px">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--secondary)">straighten</span>
+              <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--on-surface)">${(steps * 0.0008).toFixed(1)}</span>
+            </div>
+            <div class="label-sm text-surface-variant">KM</div>
+          </div>
+          <div style="width:1px;background:var(--surface-variant);align-self:stretch"></div>
+          <div style="text-align:center">
+            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:2px">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--primary)">schedule</span>
+              <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--on-surface)">${Math.round(steps * 0.0125)}</span>
+            </div>
+            <div class="label-sm text-surface-variant">MIN</div>
+          </div>
+        </div>
+        <!-- Auto Step Toggle -->
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface-container);border-radius:var(--radius-lg);padding:var(--spacing-3) var(--spacing-4)">
+          <div style="display:flex;align-items:center;gap:var(--spacing-3)">
+            <span class="material-symbols-rounded" style="font-size:22px;color:${Pedometer.active ? 'var(--primary)' : 'var(--on-surface-variant)'}">sensors</span>
+            <div>
+              <div class="title-sm">Auto Step Tracking</div>
+              <div class="body-sm text-surface-variant">${Pedometer.active ? '<span style="color:var(--primary);font-weight:600">Active</span> — counting' : Pedometer.isSupported() ? 'Tap to enable' : 'Not supported'}</div>
+            </div>
+          </div>
+          <label class="pedometer-toggle">
+            <input type="checkbox" id="dash-pedometer-switch" ${Pedometer.active ? 'checked' : ''} ${!Pedometer.isSupported() ? 'disabled' : ''} style="opacity:0;width:0;height:0">
+            <span class="pedometer-slider" style="width:52px;height:28px;border-radius:var(--radius-full);background:var(--surface-container-high);display:block;position:relative;cursor:pointer;transition:background var(--transition-fast)"></span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Water Quick Stat -->
+      <div class="stat-card" style="cursor:pointer;margin-bottom:var(--spacing-8)" onclick="window.location.hash='water'">
+        <div style="display:flex;align-items:center;justify-content:space-between">
           <div style="display:flex;align-items:center;gap:var(--spacing-2)">
             <span class="material-symbols-rounded text-tertiary" style="font-size:20px">water_drop</span>
-            <span class="stat-label">Water</span>
+            <span class="stat-label">Hydration</span>
           </div>
-          <div class="stat-value" style="color:var(--tertiary)">${(water/1000).toFixed(1)}L</div>
-          <div style="height:4px;background:var(--surface-variant);border-radius:var(--radius-full);overflow:hidden">
-            <div style="height:100%;width:${waterPercent}%;background:linear-gradient(90deg,var(--tertiary),var(--tertiary-dim));border-radius:var(--radius-full);transition:width 1s ease"></div>
-          </div>
+          <span class="body-sm text-surface-variant">${waterPercent}%</span>
+        </div>
+        <div class="stat-value" style="color:var(--tertiary)">${(water/1000).toFixed(1)}L <span class="body-sm text-surface-variant" style="font-weight:400">/ ${(waterGoal/1000).toFixed(1)}L</span></div>
+        <div style="height:4px;background:var(--surface-variant);border-radius:var(--radius-full);overflow:hidden">
+          <div style="height:100%;width:${waterPercent}%;background:linear-gradient(90deg,var(--tertiary),var(--tertiary-dim));border-radius:var(--radius-full);transition:width 1s ease"></div>
         </div>
       </div>
 
@@ -1096,6 +1149,23 @@ function renderDashboard() {
     e.preventDefault();
     requestNotifPermission();
     setTimeout(() => renderDashboard(), 1000);
+  });
+
+  // Dashboard pedometer toggle
+  $('#dash-pedometer-switch')?.addEventListener('change', async (e) => {
+    if (e.target.checked) {
+      const granted = await Pedometer.requestPermission();
+      if (granted) {
+        Pedometer.start();
+        renderDashboard();
+      } else {
+        e.target.checked = false;
+        alert('Motion sensor permission is required for automatic step tracking.');
+      }
+    } else {
+      Pedometer.stop();
+      renderDashboard();
+    }
   });
 
   // BMI input masking — clamp values on blur and prevent string concatenation
