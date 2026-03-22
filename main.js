@@ -1,4 +1,4 @@
-import './style.css';
+// Removed style.css import for raw HTTP serving
 
 // ============================================
 // KINETIC — Single Page Application
@@ -82,7 +82,22 @@ const Store = {
   getNotifPrefs() {
     return this.getData('notif_prefs', { goals: true, hydration: true, steps: true, calories: true, gym: true, tips: true });
   },
-  setNotifPrefs(prefs) { this.setData('notif_prefs', prefs); }
+  setNotifPrefs(prefs) { this.setData('notif_prefs', prefs); },
+  // Custom foods storage
+  getCustomFoods() { return this.getData('custom_foods', []); },
+  saveCustomFood(food) {
+    const foods = this.getCustomFoods();
+    // Avoid duplicates by name
+    if (!foods.find(f => f.name.toLowerCase() === food.name.toLowerCase())) {
+      foods.unshift(food);
+      if (foods.length > 50) foods.length = 50;
+      this.setData('custom_foods', foods);
+    }
+  },
+  removeCustomFood(name) {
+    const foods = this.getCustomFoods().filter(f => f.name !== name);
+    this.setData('custom_foods', foods);
+  }
 };
 
 // --- Workout Player (persistent timer) ---
@@ -673,7 +688,7 @@ function startWaterReminder() {
 
     // Show toast if app is visible
     showGoalToast('Hydration Reminder', `${remaining}L remaining — grab some water!`, '💧');
-  }, 30 * 60 * 1000); // 30 minutes
+  }, Store.getData('water_reminder_interval', 30) * 60 * 1000); // Dynamic interval, default 30 mins
 }
 
 function stopWaterReminder() {
@@ -867,6 +882,69 @@ function renderDashboard() {
         <p class="body-md text-surface-variant">You're <span class="text-primary" style="font-weight:700">${stepsPercent}%</span> through your daily step goal. Keep the momentum.</p>
       </div>
 
+      <!-- Step Tracking Big Section -->
+      <div style="background:linear-gradient(135deg, var(--surface-container) 0%, var(--surface-container-high) 100%);border-radius:var(--radius-xl);padding:var(--spacing-6);margin-bottom:var(--spacing-6);border:1px solid rgba(64,72,93,0.12)">
+        <!-- Step Count Center -->
+        <div style="text-align:center;margin-bottom:var(--spacing-5)" onclick="window.location.hash='steps'" role="button">
+          <div class="progress-ring-container" style="display:inline-block;margin-bottom:var(--spacing-3)">
+            ${createSVGRing(200, 12, Math.min(100, stepsPercent), 'var(--primary)', 'var(--surface-container-high)')}
+            <div class="ring-center-text" style="top:50%;left:50%;transform:translate(-50%,-50%)">
+              <span class="material-symbols-rounded" style="font-size:24px;color:var(--primary);display:block;margin-bottom:2px">directions_walk</span>
+              <div style="font-family:var(--font-display);font-size:${steps >= 10000 ? '2rem' : '2.5rem'};font-weight:900;color:var(--primary);line-height:1" id="dash-step-count">${steps.toLocaleString()}</div>
+              <div class="label-sm text-surface-variant" style="margin-top:4px;letter-spacing:1.5px">STEPS</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:var(--spacing-2);margin-bottom:var(--spacing-1)">
+            <span class="material-symbols-rounded" style="font-size:16px;color:var(--primary)">flag</span>
+            <span class="body-md" style="font-weight:600">${stepsPercent}% of ${stepsGoal.toLocaleString()} goal</span>
+          </div>
+          <!-- Progress bar -->
+          <div style="height:8px;background:var(--surface-container-high);border-radius:var(--radius-full);overflow:hidden;margin:var(--spacing-2) auto;max-width:280px">
+            <div style="height:100%;width:${Math.min(100, stepsPercent)}%;background:linear-gradient(90deg,var(--primary),var(--primary-container));border-radius:var(--radius-full);transition:width 1s ease"></div>
+          </div>
+        </div>
+        <!-- Stats Row -->
+        <div style="display:flex;justify-content:center;gap:var(--spacing-6);margin-bottom:var(--spacing-5)">
+          <div style="text-align:center">
+            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:2px">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--tertiary)">local_fire_department</span>
+              <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--on-surface)">${Math.round(steps * 0.04)}</span>
+            </div>
+            <div class="label-sm text-surface-variant">KCAL</div>
+          </div>
+          <div style="width:1px;background:var(--surface-variant);align-self:stretch"></div>
+          <div style="text-align:center">
+            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:2px">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--secondary)">straighten</span>
+              <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--on-surface)">${(steps * 0.0008).toFixed(1)}</span>
+            </div>
+            <div class="label-sm text-surface-variant">KM</div>
+          </div>
+          <div style="width:1px;background:var(--surface-variant);align-self:stretch"></div>
+          <div style="text-align:center">
+            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:2px">
+              <span class="material-symbols-rounded" style="font-size:18px;color:var(--primary)">schedule</span>
+              <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--on-surface)">${Math.round(steps * 0.0125)}</span>
+            </div>
+            <div class="label-sm text-surface-variant">MIN</div>
+          </div>
+        </div>
+        <!-- Auto Step Toggle -->
+        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface-container);border-radius:var(--radius-lg);padding:var(--spacing-3) var(--spacing-4)">
+          <div style="display:flex;align-items:center;gap:var(--spacing-3)">
+            <span class="material-symbols-rounded" style="font-size:22px;color:${Pedometer.active ? 'var(--primary)' : 'var(--on-surface-variant)'}">sensors</span>
+            <div>
+              <div class="title-sm">Auto Step Tracking</div>
+              <div class="body-sm text-surface-variant">${Pedometer.active ? '<span style="color:var(--primary);font-weight:600">Active</span> — counting' : Pedometer.isSupported() ? 'Tap to enable' : 'Not supported'}</div>
+            </div>
+          </div>
+          <label class="pedometer-toggle">
+            <input type="checkbox" id="dash-pedometer-switch" ${Pedometer.active ? 'checked' : ''} ${!Pedometer.isSupported() ? 'disabled' : ''} style="opacity:0;width:0;height:0">
+            <span class="pedometer-slider" style="width:52px;height:28px;border-radius:var(--radius-full);background:var(--surface-container-high);display:block;position:relative;cursor:pointer;transition:background var(--transition-fast)"></span>
+          </label>
+        </div>
+      </div>
+
       <!-- BMI & Calorie Calculator -->
       <div class="section-header"><h3 class="section-title">BMI & Calorie Calculator</h3></div>
       <div class="bmi-card">
@@ -939,68 +1017,7 @@ function renderDashboard() {
         <div class="macro-pill"><div class="macro-val" style="color:var(--secondary)">${allMealTotals.f}g</div><div class="macro-lbl">Fats</div></div>
       </div>
 
-      <!-- Step Tracking Big Section -->
-      <div style="background:linear-gradient(135deg, var(--surface-container) 0%, var(--surface-container-high) 100%);border-radius:var(--radius-xl);padding:var(--spacing-6);margin-bottom:var(--spacing-6);border:1px solid rgba(64,72,93,0.12)">
-        <!-- Step Count Center -->
-        <div style="text-align:center;margin-bottom:var(--spacing-5)" onclick="window.location.hash='steps'" role="button">
-          <div class="progress-ring-container" style="display:inline-block;margin-bottom:var(--spacing-3)">
-            ${createSVGRing(200, 12, Math.min(100, stepsPercent), 'var(--primary)', 'var(--surface-container-high)')}
-            <div class="ring-center-text" style="top:50%;left:50%;transform:translate(-50%,-50%)">
-              <span class="material-symbols-rounded" style="font-size:24px;color:var(--primary);display:block;margin-bottom:2px">directions_walk</span>
-              <div style="font-family:var(--font-display);font-size:${steps >= 10000 ? '2rem' : '2.5rem'};font-weight:900;color:var(--primary);line-height:1" id="dash-step-count">${steps.toLocaleString()}</div>
-              <div class="label-sm text-surface-variant" style="margin-top:4px;letter-spacing:1.5px">STEPS</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;justify-content:center;gap:var(--spacing-2);margin-bottom:var(--spacing-1)">
-            <span class="material-symbols-rounded" style="font-size:16px;color:var(--primary)">flag</span>
-            <span class="body-md" style="font-weight:600">${stepsPercent}% of ${stepsGoal.toLocaleString()} goal</span>
-          </div>
-          <!-- Progress bar -->
-          <div style="height:8px;background:var(--surface-container-high);border-radius:var(--radius-full);overflow:hidden;margin:var(--spacing-2) auto;max-width:280px">
-            <div style="height:100%;width:${Math.min(100, stepsPercent)}%;background:linear-gradient(90deg,var(--primary),var(--primary-container));border-radius:var(--radius-full);transition:width 1s ease"></div>
-          </div>
-        </div>
-        <!-- Stats Row -->
-        <div style="display:flex;justify-content:center;gap:var(--spacing-6);margin-bottom:var(--spacing-5)">
-          <div style="text-align:center">
-            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:2px">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--tertiary)">local_fire_department</span>
-              <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--on-surface)">${Math.round(steps * 0.04)}</span>
-            </div>
-            <div class="label-sm text-surface-variant">KCAL</div>
-          </div>
-          <div style="width:1px;background:var(--surface-variant);align-self:stretch"></div>
-          <div style="text-align:center">
-            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:2px">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--secondary)">straighten</span>
-              <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--on-surface)">${(steps * 0.0008).toFixed(1)}</span>
-            </div>
-            <div class="label-sm text-surface-variant">KM</div>
-          </div>
-          <div style="width:1px;background:var(--surface-variant);align-self:stretch"></div>
-          <div style="text-align:center">
-            <div style="display:flex;align-items:center;justify-content:center;gap:4px;margin-bottom:2px">
-              <span class="material-symbols-rounded" style="font-size:18px;color:var(--primary)">schedule</span>
-              <span style="font-family:var(--font-display);font-size:1.4rem;font-weight:800;color:var(--on-surface)">${Math.round(steps * 0.0125)}</span>
-            </div>
-            <div class="label-sm text-surface-variant">MIN</div>
-          </div>
-        </div>
-        <!-- Auto Step Toggle -->
-        <div style="display:flex;align-items:center;justify-content:space-between;background:var(--surface-container);border-radius:var(--radius-lg);padding:var(--spacing-3) var(--spacing-4)">
-          <div style="display:flex;align-items:center;gap:var(--spacing-3)">
-            <span class="material-symbols-rounded" style="font-size:22px;color:${Pedometer.active ? 'var(--primary)' : 'var(--on-surface-variant)'}">sensors</span>
-            <div>
-              <div class="title-sm">Auto Step Tracking</div>
-              <div class="body-sm text-surface-variant">${Pedometer.active ? '<span style="color:var(--primary);font-weight:600">Active</span> — counting' : Pedometer.isSupported() ? 'Tap to enable' : 'Not supported'}</div>
-            </div>
-          </div>
-          <label class="pedometer-toggle">
-            <input type="checkbox" id="dash-pedometer-switch" ${Pedometer.active ? 'checked' : ''} ${!Pedometer.isSupported() ? 'disabled' : ''} style="opacity:0;width:0;height:0">
-            <span class="pedometer-slider" style="width:52px;height:28px;border-radius:var(--radius-full);background:var(--surface-container-high);display:block;position:relative;cursor:pointer;transition:background var(--transition-fast)"></span>
-          </label>
-        </div>
-      </div>
+
 
       <!-- Water Quick Stat -->
       <div class="stat-card" style="cursor:pointer;margin-bottom:var(--spacing-8)" onclick="window.location.hash='water'">
@@ -1031,7 +1048,64 @@ function renderDashboard() {
         <span class="material-symbols-rounded plan-arrow">chevron_right</span>
       </div>
 
+      <!-- Sleep Tracking Widget -->
+      <div class="sleep-widget" style="margin-bottom:var(--spacing-6)">
+        <div class="sleep-widget-header">
+          <div style="display:flex;align-items:center;gap:var(--spacing-2)">
+            <span class="material-symbols-rounded" style="color:var(--tertiary);font-size:22px">bedtime</span>
+            <span class="title-md">Sleep Tracking</span>
+          </div>
+          <button class="btn-icon" id="go-sleep-trends" style="background:rgba(97,194,255,0.08)">
+            <span class="material-symbols-rounded" style="color:var(--tertiary);font-size:18px">open_in_new</span>
+          </button>
+        </div>
+        <div class="sleep-widget-stats">
+          <div class="sleep-stat">
+            <div class="sleep-stat-value" id="sleep-last-night">${(() => {
+              const sleepData = Store.getData('sleep_history', []);
+              const today = new Date().toDateString();
+              const lastEntry = sleepData.find(e => new Date(e.date).toDateString() === today) || sleepData[sleepData.length - 1];
+              return lastEntry ? lastEntry.hours.toFixed(1) + 'h' : '--';
+            })()}</div>
+            <div class="sleep-stat-label">LAST NIGHT</div>
+          </div>
+          <div class="sleep-stat">
+            <div class="sleep-stat-value" id="sleep-avg">${(() => {
+              const sleepData = Store.getData('sleep_history', []);
+              if (sleepData.length === 0) return '--';
+              const avg = sleepData.slice(-7).reduce((s, e) => s + e.hours, 0) / Math.min(sleepData.length, 7);
+              return avg.toFixed(1) + 'h';
+            })()}</div>
+            <div class="sleep-stat-label">7-DAY AVG</div>
+          </div>
+          <div class="sleep-stat">
+            <div class="sleep-stat-value" style="color:${(() => {
+              const sleepData = Store.getData('sleep_history', []);
+              if (sleepData.length === 0) return 'var(--on-surface-variant)';
+              const avg = sleepData.slice(-7).reduce((s, e) => s + e.hours, 0) / Math.min(sleepData.length, 7);
+              return avg > 10 ? 'var(--error)' : avg >= 7 ? 'var(--primary)' : avg >= 6 ? 'var(--secondary)' : 'var(--error)';
+            })()}">${(() => {
+              const sleepData = Store.getData('sleep_history', []);
+              if (sleepData.length === 0) return '🎯 8h';
+              const avg = sleepData.slice(-7).reduce((s, e) => s + e.hours, 0) / Math.min(sleepData.length, 7);
+              return avg > 10 ? '😴 Oversleep' : avg >= 8 ? '⭐ Optimal' : avg >= 7 ? '✅ Good' : avg >= 6 ? '⚠️ Fair' : '❌ Poor';
+            })()}</div>
+            <div class="sleep-stat-label">QUALITY</div>
+          </div>
+        </div>
+        <div class="sleep-quick-log">
+          <input type="number" id="sleep-quick-input" placeholder="Hours slept" step="0.5" min="0" max="14" 
+            style="flex:1;padding:var(--spacing-2) var(--spacing-3);border-radius:var(--radius-lg);border:1px solid var(--surface-variant);background:var(--surface-container);color:var(--on-surface);font-family:var(--font-body);font-size:0.85rem">
+          <button class="btn-primary" id="sleep-quick-log-btn" style="padding:var(--spacing-2) var(--spacing-4);font-size:0.8rem">
+            <span class="material-symbols-rounded" style="font-size:16px">add</span> Log
+          </button>
+        </div>
+      </div>
+
+
+
       <!-- Heart Rate Monitor -->
+
       <div style="background:linear-gradient(135deg, var(--surface-container) 0%, var(--surface-container-high) 100%);border-radius:var(--radius-xl);padding:var(--spacing-6);margin-bottom:var(--spacing-6);border:1px solid rgba(64,72,93,0.12)">
         <!-- Header + Toggle -->
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-4)">
@@ -1113,6 +1187,30 @@ function renderDashboard() {
   `;
   bindNav();
   $('#logout-btn')?.addEventListener('click', () => { Store.logout(); Router.navigate('login'); });
+
+  // Sleep Quick Log
+  $('#sleep-quick-log-btn')?.addEventListener('click', () => {
+    const hours = parseFloat($('#sleep-quick-input')?.value);
+    if (!hours || hours < 0 || hours > 14) {
+      showGoalToast('Invalid Input', 'Please enter hours between 0 and 14', '⚠️');
+      return;
+    }
+    const sleepData = Store.getData('sleep_history', []);
+    const today = new Date().toISOString().slice(0, 10);
+    const existing = sleepData.findIndex(e => e.date === today);
+    if (existing >= 0) sleepData[existing].hours = hours;
+    else sleepData.push({ date: today, hours });
+    if (sleepData.length > 90) sleepData.shift();
+    Store.setData('sleep_history', sleepData);
+    showGoalToast('Sleep Logged', `${hours}h sleep recorded for today`, '😴');
+    renderDashboard();
+  });
+  
+  // Go to sleep trends
+  $('#go-sleep-trends')?.addEventListener('click', () => Router.navigate('trends'));
+
+  // Steps dashboard widget — go to steps page
+  $('#go-steps-dash')?.addEventListener('click', () => Router.navigate('steps'));
 
   // Crew Feed link
   $('#go-crew-feed')?.addEventListener('click', () => Router.navigate('crew'));
@@ -1962,6 +2060,7 @@ function openAddMealModal(mealKey, preSelectedFood) {
       <!-- Diet Type Filter -->
       <div style="display:flex;gap:var(--spacing-2);margin-bottom:var(--spacing-4);overflow-x:auto" id="food-filters">
         <button class="food-filter-chip ${dietPref === 'all' ? 'active' : ''}" data-filter="all">All</button>
+        <button class="food-filter-chip" data-filter="custom"><span style="color:var(--primary);font-size:10px;margin-right:3px">★</span> My Meals</button>
         <button class="food-filter-chip ${dietPref === 'veg' ? 'active' : ''}" data-filter="veg"><span style="color:#22c55e;font-size:10px;margin-right:3px">●</span> Veg</button>
         <button class="food-filter-chip ${dietPref === 'nonveg' ? 'active' : ''}" data-filter="nonveg"><span style="color:#ef4444;font-size:10px;margin-right:3px">●</span> Non-Veg</button>
         <button class="food-filter-chip ${dietPref === 'vegan' ? 'active' : ''}" data-filter="vegan"><span style="color:#16a34a;font-size:10px;margin-right:3px">●</span> Vegan</button>
@@ -1986,6 +2085,15 @@ function openAddMealModal(mealKey, preSelectedFood) {
       })()}
 
       <div id="food-results" style="max-height:220px;overflow-y:auto">
+        ${Store.getCustomFoods().map((f, i) => `
+          <div class="food-result food-result-custom" data-custom-idx="${i}" data-type="custom">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span class="food-type-dot" style="background:var(--primary)"></span>
+              <div><div class="food-name">${f.name} <span style="font-size:0.6rem;color:var(--primary);font-weight:700">★ SAVED</span></div><div class="food-detail">${f.serving} • P:${f.p}g C:${f.c}g F:${f.f}g</div></div>
+            </div>
+            <span class="food-cal">${f.cal}</span>
+          </div>
+        `).join('')}
         ${FOOD_DB.map((f, i) => `
           <div class="food-result" data-idx="${i}" data-type="${f.type}">
             <div style="display:flex;align-items:center;gap:8px">
@@ -2063,10 +2171,20 @@ function openAddMealModal(mealKey, preSelectedFood) {
   function filterFoods() {
     const q = searchInput.value.toLowerCase();
     $$('#food-results .food-result').forEach(el => {
-      const idx = parseInt(el.dataset.idx);
-      const nameMatch = FOOD_DB[idx].name.toLowerCase().includes(q);
-      const typeMatch = activeFilter === 'all' || el.dataset.type === activeFilter;
-      el.style.display = (nameMatch && typeMatch) ? '' : 'none';
+      if (el.classList.contains('food-result-custom')) {
+        const cidx = parseInt(el.dataset.customIdx);
+        const customFoods = Store.getCustomFoods();
+        const food = customFoods[cidx];
+        const nameMatch = food ? food.name.toLowerCase().includes(q) : false;
+        const typeMatch = activeFilter === 'all' || activeFilter === 'custom';
+        el.style.display = (nameMatch && typeMatch) ? '' : 'none';
+      } else {
+        const idx = parseInt(el.dataset.idx);
+        const nameMatch = FOOD_DB[idx].name.toLowerCase().includes(q);
+        const typeMatch = activeFilter === 'all' || el.dataset.type === activeFilter;
+        const hideIfCustom = activeFilter === 'custom';
+        el.style.display = (nameMatch && typeMatch && !hideIfCustom) ? '' : 'none';
+      }
     });
   }
 
@@ -2100,11 +2218,17 @@ function openAddMealModal(mealKey, preSelectedFood) {
     });
   });
 
-  // Select food
+  // Select food (both DB and custom)
   $$('#food-results .food-result').forEach(el => {
     el.addEventListener('click', () => {
-      const idx = parseInt(el.dataset.idx);
-      selectedFood = { ...FOOD_DB[idx] };
+      if (el.classList.contains('food-result-custom')) {
+        const cidx = parseInt(el.dataset.customIdx);
+        const customFoods = Store.getCustomFoods();
+        selectedFood = { ...customFoods[cidx] };
+      } else {
+        const idx = parseInt(el.dataset.idx);
+        selectedFood = { ...FOOD_DB[idx] };
+      }
       $('#selected-food-form').style.display = 'block';
       $('#sel-food-name').textContent = selectedFood.name;
       $('#sel-food-serving').textContent = `Per serving: ${selectedFood.serving}`;
@@ -2177,12 +2301,17 @@ function openAddMealModal(mealKey, preSelectedFood) {
       const c = parseFloat($('#custom-c').value) || 0;
       const f = parseFloat($('#custom-f').value) || 0;
       
-      const customFood = { name, serving: '1 Custom serving', cal, p, c, f, servings: 1 };
+      const customFood = { name, serving: '1 Custom serving', cal, p, c, f, servings: 1, type: 'custom' };
+      
+      // Auto-save custom food to memory for reuse
+      Store.saveCustomFood({ name, serving: '1 Custom serving', cal, p, c, f, type: 'custom' });
+      Store.trackFoodUsage(name);
       
       const m = getMeals();
       m[mealKey].push(customFood);
       setMeals(m);
       checkGoalNotifications();
+      showGoalToast('Custom Meal Saved', `"${name}" saved to My Meals for quick access`, '⭐');
       overlay.remove();
       renderDiet();
     });
@@ -2207,7 +2336,7 @@ const WORKOUT_OPTIONS = [
   'Upper Body Power', 'Lower Body Power', 'Upper Body Hypertrophy', 'Lower Body Hypertrophy',
   'Push Day', 'Pull Day', 'Leg Day', 'Full Body', 'Cardio HIIT', 'Active Recovery',
   'Yoga & Mobility', 'Core & Abs', 'Arms & Shoulders', 'Back & Biceps',
-  'Chest & Triceps', 'Rest Day',
+  'Chest & Triceps', 'Rest Day', 'Home Workout',
 ];
 
 function getSchedule() { return Store.getData('workout_schedule', DEFAULT_SCHEDULE); }
@@ -2263,11 +2392,32 @@ const WORKOUT_EXERCISES = {
     { name: 'Walking Lunges', tag: 'Mobility • Legs', sets: [{ w: 'Bodyweight', r: '20 steps', done: false },{ w: 'Bodyweight', r: '20 steps', done: false }] },
     { name: 'Pull Ups', tag: 'Bodyweight • Core/Back', sets: [{ w: 'Bodyweight', r: 'Max reps', done: false },{ w: 'Bodyweight', r: 'Max reps', done: false }] },
   ],
+  'Home Workout': [
+    { name: 'Push-Ups', tag: 'Bodyweight • Chest & Triceps', badge: 'No Equipment',
+      sets: [{ w: 'Bodyweight', r: '15 reps', done: false },{ w: 'Bodyweight', r: '12 reps', done: false },{ w: 'Bodyweight', r: '10 reps', done: false }]
+    },
+    { name: 'Bodyweight Squats', tag: 'Bodyweight • Legs', badge: 'No Equipment',
+      sets: [{ w: 'Bodyweight', r: '20 reps', done: false },{ w: 'Bodyweight', r: '20 reps', done: false },{ w: 'Bodyweight', r: '15 reps', done: false }]
+    },
+    { name: 'Plank', tag: 'Bodyweight • Core', badge: 'No Equipment',
+      sets: [{ w: 'Bodyweight', r: '45 sec', done: false },{ w: 'Bodyweight', r: '45 sec', done: false },{ w: 'Bodyweight', r: '60 sec', done: false }]
+    },
+    { name: 'Burpees', tag: 'Bodyweight • Full Body', badge: 'High Burn',
+      sets: [{ w: 'Bodyweight', r: '10 reps', done: false },{ w: 'Bodyweight', r: '10 reps', done: false },{ w: 'Bodyweight', r: '8 reps', done: false }]
+    },
+    { name: 'Mountain Climbers', tag: 'Bodyweight • Core & Cardio', badge: 'No Equipment',
+      sets: [{ w: 'Bodyweight', r: '30 sec', done: false },{ w: 'Bodyweight', r: '30 sec', done: false },{ w: 'Bodyweight', r: '30 sec', done: false }]
+    },
+    { name: 'Tricep Dips (Bodyweight)', tag: 'Bodyweight • Arms', badge: 'Chair/Bench',
+      sets: [{ w: 'Bodyweight', r: '12 reps', done: false },{ w: 'Bodyweight', r: '12 reps', done: false },{ w: 'Bodyweight', r: '10 reps', done: false }]
+    },
+  ],
 };
 
 const EXERCISE_DETAILS = {
   'Barbell Back Squat': {
     muscles: ['Quadriceps', 'Glutes', 'Hamstrings', 'Core'],
+    calsBurn30min: 220,
     img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Stand with feet shoulder-width apart, resting the barbell on your upper back or traps.',
@@ -2291,13 +2441,13 @@ const EXERCISE_DETAILS = {
       'Avoid bouncing at the bottom of the squat'
     ],
     videos: [
-      { title: 'Perfect Squat Form Guide', url: 'https://www.youtube.com/results?search_query=barbell+back+squat+proper+form+tutorial' },
-      { title: 'Common Squat Mistakes to Avoid', url: 'https://www.youtube.com/results?search_query=barbell+squat+common+mistakes' },
-      { title: 'Squat Mobility & Warm-Up', url: 'https://www.youtube.com/results?search_query=squat+mobility+warm+up+routine' }
+      { title: 'Barbell Squat Form (Hindi)', id: '_CwSTgVPN1o' },
+      { title: 'Perfect Squat Form Guide', id: 'Dy28eq2PjcM' }
     ]
   },
   'Leg Press': {
     muscles: ['Quadriceps', 'Glutes', 'Hamstrings'],
+    calsBurn30min: 180,
     img: 'https://images.unsplash.com/photo-1584735935682-2f2b694b8e88?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Sit on the machine, placing feet shoulder-width apart on the sled.',
@@ -2321,12 +2471,13 @@ const EXERCISE_DETAILS = {
       'Avoid placing feet too low which stresses the knees'
     ],
     videos: [
-      { title: 'Leg Press Form & Foot Placement', url: 'https://www.youtube.com/results?search_query=leg+press+proper+form+foot+placement' },
-      { title: 'Leg Press Variations for Growth', url: 'https://www.youtube.com/results?search_query=leg+press+variations+muscle+growth' }
+      { title: 'Leg Press Form & Foot Placement', id: 'IZxyjW7MPJQ' },
+      { title: 'Leg Press Variations for Growth', id: 'yZmx_Ac3880' }
     ]
   },
   'Romanian Deadlift': {
     muscles: ['Hamstrings', 'Glutes', 'Lower Back'],
+    calsBurn30min: 200,
     img: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Hold a barbell or dumbbells with an overhand grip, feet hip-width apart.',
@@ -2350,12 +2501,14 @@ const EXERCISE_DETAILS = {
       'Stop lowering when you feel a strong hamstring stretch, not pain'
     ],
     videos: [
-      { title: 'Romanian Deadlift Masterclass', url: 'https://www.youtube.com/results?search_query=romanian+deadlift+proper+form+tutorial' },
-      { title: 'RDL vs Stiff-Leg Deadlift', url: 'https://www.youtube.com/results?search_query=romanian+deadlift+vs+stiff+leg+deadlift' }
+      { title: 'Romanian Deadlift Masterclass', id: '_oyxCn2iSjU' },
+      { title: 'RDL vs Stiff-Leg Deadlift', id: 'cYKYGwcg0U8' }
     ]
   },
+
   'Walking Lunges': {
     muscles: ['Quadriceps', 'Glutes', 'Hamstrings'],
+    calsBurn30min: 170,
     img: 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Stand tall holding dumbbells by your sides.',
@@ -2379,12 +2532,13 @@ const EXERCISE_DETAILS = {
       'Ensure you have enough space to walk safely'
     ],
     videos: [
-      { title: 'Walking Lunge Technique', url: 'https://www.youtube.com/results?search_query=walking+lunges+proper+form+technique' },
-      { title: 'Lunge Variations for Legs', url: 'https://www.youtube.com/results?search_query=lunge+variations+leg+workout' }
+      { title: 'Walking Lunge Technique', id: 'L8fvypPH1LY' },
+      { title: 'Lunge Variations for Legs', id: 'wrwwXE_5-pI' }
     ]
   },
   'Bench Press': {
     muscles: ['Chest', 'Anterior Deltoids', 'Triceps'],
+    calsBurn30min: 180,
     img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Lie flat on the bench, feet firmly planted on the floor.',
@@ -2408,12 +2562,13 @@ const EXERCISE_DETAILS = {
       'Ensure your wrists stay straight and stacked over elbows'
     ],
     videos: [
-      { title: 'Bench Press Form for Beginners', url: 'https://www.youtube.com/results?search_query=bench+press+proper+form+beginners' },
-      { title: 'Increase Your Bench Press', url: 'https://www.youtube.com/results?search_query=how+to+increase+bench+press+strength' }
+      { title: 'Bench Press Form for Beginners', id: '4Y2ZdHCOXok' },
+      { title: 'Increase Your Bench Press', id: 'vcBig73ojpE' }
     ]
   },
   'Barbell Bench Press': {
     muscles: ['Chest', 'Anterior Deltoids', 'Triceps'],
+    calsBurn30min: 190,
     img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Lie flat on the bench with eyes under the bar, feet flat on the floor.',
@@ -2437,13 +2592,13 @@ const EXERCISE_DETAILS = {
       'Control the descent for at least 2 seconds'
     ],
     videos: [
-      { title: 'Perfect Bench Press Tutorial', url: 'https://www.youtube.com/results?search_query=barbell+bench+press+proper+form+tutorial' },
-      { title: 'Fix Common Bench Press Mistakes', url: 'https://www.youtube.com/results?search_query=bench+press+common+mistakes+fix' },
-      { title: 'Bench Press Programming for Strength', url: 'https://www.youtube.com/results?search_query=bench+press+strength+program' }
+      { title: 'Bench Press Tutorial (Hindi)', id: 'rUqt6vvHnEU' },
+      { title: 'Fix Common Bench Press Mistakes', id: 'BYKScL2sgCs' }
     ]
   },
   'Overhead Press': {
     muscles: ['Shoulders', 'Triceps', 'Upper Chest'],
+    calsBurn30min: 160,
     img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Stand with feet shoulder-width apart, holding a barbell at shoulder level.',
@@ -2467,12 +2622,13 @@ const EXERCISE_DETAILS = {
       'Start with lighter weight to master the bar path'
     ],
     videos: [
-      { title: 'Overhead Press Form Guide', url: 'https://www.youtube.com/results?search_query=overhead+press+proper+form+guide' },
-      { title: 'Fix Your Overhead Press', url: 'https://www.youtube.com/results?search_query=overhead+press+mistakes+tips' }
+      { title: 'Overhead Press Form (Hindi)', id: 'bUj5ty1ZsZE' },
+      { title: 'Overhead Press Form Guide', id: 'QAQ64hK4Xxs' }
     ]
   },
   'Pull Ups': {
     muscles: ['Lats', 'Biceps', 'Rhomboids'],
+    calsBurn30min: 170,
     img: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Grab the pull-up bar with an overhand grip slightly wider than shoulder-width.',
@@ -2496,12 +2652,13 @@ const EXERCISE_DETAILS = {
       'Allow full arm extension at the bottom for full range of motion'
     ],
     videos: [
-      { title: 'Pull-Up Progression for Beginners', url: 'https://www.youtube.com/results?search_query=pull+up+progression+beginners+tutorial' },
-      { title: 'Advanced Pull-Up Variations', url: 'https://www.youtube.com/results?search_query=advanced+pull+up+variations+workout' }
+      { title: 'Pull-Up Progression (Hindi)', id: 'Qxx0EE4evyI' },
+      { title: 'Advanced Pull-Up Variations', id: 'brhRXlOhsAM' }
     ]
   },
   'Barbell Rows': {
     muscles: ['Middle Back', 'Lats', 'Biceps'],
+    calsBurn30min: 175,
     img: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Stand holding a barbell with an overhand grip, hands slightly wider than shoulder-width.',
@@ -2525,12 +2682,13 @@ const EXERCISE_DETAILS = {
       'Do not jerk the bar up — initiate the pull with your back muscles'
     ],
     videos: [
-      { title: 'Barbell Row Form Guide', url: 'https://www.youtube.com/results?search_query=barbell+row+proper+form+tutorial' },
-      { title: 'Row Variations for Back Thickness', url: 'https://www.youtube.com/results?search_query=barbell+row+variations+back+workout' }
+      { title: 'Barbell Row Form Guide', id: 'FWJR5Ve8bnQ' },
+      { title: 'Row Variations for Back Thickness', id: 'KDEl3AmZbVE' }
     ]
   },
   'Barbell Row': {
     muscles: ['Middle Back', 'Lats', 'Biceps'],
+    calsBurn30min: 175,
     img: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Stand holding a barbell with an overhand grip, hands slightly wider than shoulder-width.',
@@ -2554,12 +2712,13 @@ const EXERCISE_DETAILS = {
       'Do not jerk the bar up — initiate the pull with your back muscles'
     ],
     videos: [
-      { title: 'Barbell Row Technique', url: 'https://www.youtube.com/results?search_query=barbell+row+proper+technique' },
-      { title: 'Build a Bigger Back with Rows', url: 'https://www.youtube.com/results?search_query=barbell+row+bigger+back+workout' }
+      { title: 'Barbell Row Technique', id: 'FWJR5Ve8bnQ' },
+      { title: 'Build a Bigger Back with Rows', id: 'T3N-TO4reLQ' }
     ]
   },
   'Incline Dumbbell Press': {
     muscles: ['Upper Chest', 'Anterior Deltoids', 'Triceps'],
+    calsBurn30min: 165,
     img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Set the bench to a 30-45 degree incline and sit back with a dumbbell in each hand.',
@@ -2583,12 +2742,13 @@ const EXERCISE_DETAILS = {
       'Use a spotter for very heavy sets to help with unracking'
     ],
     videos: [
-      { title: 'Incline Dumbbell Press Tutorial', url: 'https://www.youtube.com/results?search_query=incline+dumbbell+press+proper+form' },
-      { title: 'Upper Chest Growth Tips', url: 'https://www.youtube.com/results?search_query=upper+chest+workout+incline+press' }
+      { title: 'Incline Dumbbell Press Tutorial', id: '8iPEnn-ltC8' },
+      { title: 'Upper Chest Growth Tips', id: 'SrqOu55lrYU' }
     ]
   },
   'Cable Crossovers': {
     muscles: ['Chest', 'Anterior Deltoids', 'Serratus Anterior'],
+    calsBurn30min: 130,
     img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Stand in the center of a cable machine with pulleys set above head height.',
@@ -2612,12 +2772,13 @@ const EXERCISE_DETAILS = {
       'Focus on chest squeeze, not arm movement'
     ],
     videos: [
-      { title: 'Cable Crossover Form Guide', url: 'https://www.youtube.com/results?search_query=cable+crossover+proper+form+chest' },
-      { title: 'Cable Fly Variations', url: 'https://www.youtube.com/results?search_query=cable+fly+variations+chest+workout' }
+      { title: 'Cable Crossover Form Guide', id: 'taI4XduLpTk' },
+      { title: 'Cable Fly Variations', id: 'WEM9FCIPlxQ' }
     ]
   },
   'Leg Extensions': {
     muscles: ['Quadriceps'],
+    calsBurn30min: 120,
     img: 'https://images.unsplash.com/photo-1584735935682-2f2b694b8e88?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Sit on the leg extension machine with your back flat against the pad.',
@@ -2641,12 +2802,13 @@ const EXERCISE_DETAILS = {
       'Do not swing the weight up using momentum'
     ],
     videos: [
-      { title: 'Leg Extension Technique', url: 'https://www.youtube.com/results?search_query=leg+extension+proper+form+technique' },
-      { title: 'Leg Extensions for Quad Growth', url: 'https://www.youtube.com/results?search_query=leg+extensions+quad+growth+tips' }
+      { title: 'Leg Extension Technique', id: 'YyvSfVjQeL0' },
+      { title: 'Leg Extensions for Quad Growth', id: 'ljO4jkwv8wQ' }
     ]
   },
   'Lying Leg Curls': {
     muscles: ['Hamstrings', 'Calves'],
+    calsBurn30min: 120,
     img: 'https://images.unsplash.com/photo-1584735935682-2f2b694b8e88?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Lie face down on the leg curl machine with ankles under the pad.',
@@ -2670,12 +2832,13 @@ const EXERCISE_DETAILS = {
       'Keep your toes pointed straight or slightly inward'
     ],
     videos: [
-      { title: 'Lying Leg Curl Form', url: 'https://www.youtube.com/results?search_query=lying+leg+curl+proper+form' },
-      { title: 'Hamstring Training Tips', url: 'https://www.youtube.com/results?search_query=hamstring+workout+leg+curl+tips' }
+      { title: 'Lying Leg Curl Form', id: 'ELOCsiu8n0c' },
+      { title: 'Hamstring Training Tips', id: 'F488SA4dxl0' }
     ]
   },
   'Calf Raises': {
     muscles: ['Gastrocnemius', 'Soleus'],
+    calsBurn30min: 100,
     img: 'https://images.unsplash.com/photo-1434682881908-b43d0467b798?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Stand on a calf raise machine or a step with the balls of your feet on the edge.',
@@ -2699,12 +2862,13 @@ const EXERCISE_DETAILS = {
       'Perform seated raises to target the soleus specifically'
     ],
     videos: [
-      { title: 'Calf Raise Form & Tips', url: 'https://www.youtube.com/results?search_query=calf+raises+proper+form+tips' },
-      { title: 'How to Grow Stubborn Calves', url: 'https://www.youtube.com/results?search_query=grow+bigger+calves+workout' }
+      { title: 'Calf Raise Form & Tips', id: '-M4-G8p8fmc' },
+      { title: 'How to Grow Stubborn Calves', id: 'gwBVFfIRlag' }
     ]
   },
   'Treadmill Sprints': {
     muscles: ['Quadriceps', 'Hamstrings', 'Glutes', 'Calves', 'Core'],
+    calsBurn30min: 350,
     img: 'https://images.unsplash.com/photo-1538805060514-97d9cc17730c?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Warm up with a 3-5 minute light jog at an easy pace.',
@@ -2728,12 +2892,13 @@ const EXERCISE_DETAILS = {
       'Do not grip the handles while sprinting — use natural arm swing'
     ],
     videos: [
-      { title: 'Treadmill HIIT Sprint Workout', url: 'https://www.youtube.com/results?search_query=treadmill+sprint+HIIT+workout' },
-      { title: 'Treadmill Sprint Technique', url: 'https://www.youtube.com/results?search_query=treadmill+sprints+proper+technique+beginners' }
+      { title: 'Treadmill HIIT Sprint Workout', id: 'aKfC4A6HKDY' },
+      { title: 'Treadmill Sprint Technique', id: 'aaJ_Nll-k98' }
     ]
   },
   'Jump Rope': {
     muscles: ['Calves', 'Shoulders', 'Core', 'Forearms', 'Quadriceps'],
+    calsBurn30min: 300,
     img: 'https://images.unsplash.com/photo-1517344884509-a0c97ec11bcc?q=80&w=400&auto=format&fit=crop',
     steps: [
       'Hold the rope handles at hip height with elbows close to your body.',
@@ -2757,9 +2922,227 @@ const EXERCISE_DETAILS = {
       'Start with short intervals and build up to longer sessions'
     ],
     videos: [
-      { title: 'Jump Rope for Beginners', url: 'https://www.youtube.com/results?search_query=jump+rope+tutorial+beginners' },
-      { title: 'Jump Rope HIIT Workout', url: 'https://www.youtube.com/results?search_query=jump+rope+HIIT+workout+fat+burn' }
+      { title: 'Jump Rope for Beginners', id: 'FJmRQ5iTXKE' },
+      { title: 'Jump Rope HIIT Workout', id: 'hcfRGPVhOoU' }
     ]
+  },
+  // === Additional Gym Exercises (from workout PDFs) ===
+  'Dumbbell Shoulder Press': {
+    muscles: ['Shoulders', 'Triceps', 'Upper Chest'], calsBurn30min: 155,
+    img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop',
+    steps: ['Sit on a bench with back support, holding dumbbells at shoulder height.', 'Press dumbbells overhead until arms are fully extended.', 'Lower slowly back to shoulder level.', 'Keep core tight throughout.'],
+    variations: ['Arnold Press', 'Seated Barbell Press', 'Standing DB Press', 'Single-Arm DB Press'],
+    benefits: ['Builds shoulder size and strength', 'Corrects imbalances between sides', 'Greater range of motion than barbell press', 'Engages stabilizer muscles'],
+    precautions: ['Don\'t arch your back excessively', 'Lower the weight under control', 'Use lighter weight to master form first'],
+    videos: [{ title: 'Dumbbell Shoulder Press Guide', id: 'qEwKCR5JCog' }, { title: 'Shoulder Press Variations', id: 'B-aVuyhvLHU' }]
+  },
+  'Lateral Raises': {
+    muscles: ['Side Deltoids', 'Traps'], calsBurn30min: 110,
+    img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop',
+    steps: ['Stand holding dumbbells at your sides with palms facing inward.', 'Raise arms out to the sides until parallel to the floor.', 'Pause briefly at the top.', 'Lower slowly to the starting position.'],
+    variations: ['Cable Lateral Raises', 'Seated Lateral Raises', 'Leaning Lateral Raises', 'Machine Lateral Raises'],
+    benefits: ['Builds wide, capped shoulders', 'Targets the medial delt which creates shoulder width', 'Great isolation exercise'],
+    precautions: ['Don\'t swing the weight — use strict form', 'Keep a slight bend in the elbows', 'Don\'t raise above shoulder height'],
+    videos: [{ title: 'Perfect Lateral Raise Form', id: '3VcKaXpzqRo' }, { title: 'Lateral Raise Mistakes', id: 'kDqklk1ZESo' }]
+  },
+  'Face Pulls': {
+    muscles: ['Rear Deltoids', 'Rhomboids', 'Rotator Cuff'], calsBurn30min: 100,
+    img: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop',
+    steps: ['Set cable machine to upper chest height with rope attachment.', 'Pull the rope towards your face, separating the handles.', 'Squeeze your shoulder blades together at peak contraction.', 'Slowly return to the starting position.'],
+    variations: ['Band Face Pulls', 'Prone Y-Raises', 'Reverse Flyes', 'TRX Face Pulls'],
+    benefits: ['Essential for shoulder health and posture', 'Strengthens the rear delts and rotator cuff', 'Counterbalances pressing movements'],
+    precautions: ['Use light weight — this is a corrective exercise', 'Don\'t use momentum', 'Keep elbows high'],
+    videos: [{ title: 'Face Pull Tutorial', id: 'rep-qVOkqgk' }, { title: 'Why Face Pulls Matter', id: 'eIq5CB9JfKE' }]
+  },
+  'Dumbbell Bicep Curls': {
+    muscles: ['Biceps', 'Forearms'], calsBurn30min: 120,
+    img: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop',
+    steps: ['Stand with dumbbells at your sides, palms facing forward.', 'Curl the weights up toward your shoulders.', 'Squeeze your biceps at the top.', 'Lower slowly under control.'],
+    variations: ['Hammer Curls', 'Concentration Curls', 'Incline Curls', 'Preacher Curls', 'Cable Curls'],
+    benefits: ['Builds bicep peak and size', 'Strengthens grip and forearms', 'Easy to progressive overload'],
+    precautions: ['Don\'t swing your body', 'Keep elbows pinned to your sides', 'Use full range of motion'],
+    videos: [{ title: 'Bicep Curl Form Guide', id: 'ykJmrZ5v0Oo' }, { title: 'Best Bicep Exercises', id: 'StGRhMfnUBM' }]
+  },
+  'Tricep Pushdowns': {
+    muscles: ['Triceps'], calsBurn30min: 110,
+    img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop',
+    steps: ['Stand facing a cable machine with a straight bar or rope attachment.', 'Push the bar down until arms are fully extended.', 'Squeeze your triceps at the bottom.', 'Slowly return to the starting position.'],
+    variations: ['Rope Pushdowns', 'V-Bar Pushdowns', 'Single-Arm Pushdowns', 'Reverse Grip Pushdowns'],
+    benefits: ['Isolates the triceps effectively', 'Constant tension from cable', 'Builds tricep mass and definition'],
+    precautions: ['Keep elbows stationary', 'Don\'t lean forward excessively', 'Control the weight on the way up'],
+    videos: [{ title: 'Tricep Pushdown Form', id: '2-LAMcpzODU' }, { title: 'Tricep Cable Exercises', id: 'nRiJVZDpdL0' }]
+  },
+  'Lat Pulldown': {
+    muscles: ['Lats', 'Biceps', 'Rear Deltoids'], calsBurn30min: 150,
+    img: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop',
+    steps: ['Sit at the lat pulldown machine, gripping the bar wider than shoulder-width.', 'Pull the bar down to your upper chest.', 'Squeeze your lats at the bottom.', 'Slowly release the bar back up with control.'],
+    variations: ['Close-Grip Pulldown', 'Behind-Neck Pulldown', 'V-Bar Pulldown', 'Single-Arm Pulldown'],
+    benefits: ['Builds a wide back', 'Great alternative to pull-ups', 'Allows precise weight selection', 'Develops lat width'],
+    precautions: ['Don\'t lean too far back', 'Pull with your back, not your arms', 'Avoid behind-neck pulldowns if shoulders are tight'],
+    videos: [{ title: 'Lat Pulldown Technique', id: 'CAwf7n6Luuc' }, { title: 'Back Width Exercises', id: 'xqDz9L6k7WE' }]
+  },
+  'Dips': {
+    muscles: ['Chest', 'Triceps', 'Front Deltoids'], calsBurn30min: 190,
+    img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop',
+    steps: ['Grip the dip bars and lift yourself to the starting position.', 'Lower your body by bending your elbows until upper arms are parallel.', 'Lean forward slightly to target chest, upright for triceps.', 'Push back up to full arm extension.'],
+    variations: ['Weighted Dips', 'Bench Dips', 'Ring Dips', 'Machine-Assisted Dips'],
+    benefits: ['Excellent compound movement for upper body', 'Builds chest and tricep mass', 'Bodyweight exercise that\'s easy to progressively overload'],
+    precautions: ['Don\'t go too deep if shoulders are tight', 'Keep shoulders down and back', 'Start with assisted dips if needed'],
+    videos: [{ title: 'Dip Form Guide', id: 'dX_nSOOJIsE' }, { title: 'Weighted Dips Tutorial', id: '2z8JmcrW-As' }]
+  },
+  'Deadlift': {
+    muscles: ['Glutes', 'Hamstrings', 'Lower Back', 'Traps', 'Core'], calsBurn30min: 250,
+    img: 'https://images.unsplash.com/photo-1541534741688-6078c6bfb5c5?q=80&w=400&auto=format&fit=crop',
+    steps: ['Stand with feet hip-width apart, barbell over mid-foot.', 'Hinge at hips, grip the bar just outside your knees.', 'Brace core, flatten back, and drive through your heels.', 'Stand up tall, locking hips at the top.', 'Lower the bar by hinging at hips first, then bending knees.'],
+    variations: ['Sumo Deadlift', 'Trap Bar Deadlift', 'Deficit Deadlift', 'Rack Pulls', 'Pause Deadlift'],
+    benefits: ['The ultimate full-body strength exercise', 'Builds the entire posterior chain', 'Massive hormonal response for muscle growth', 'Functional strength for daily life'],
+    precautions: ['Never round your back', 'Keep the bar close to your body', 'Use mixed or hook grip for heavy loads', 'Warm up thoroughly'],
+    videos: [{ title: 'Deadlift Form Masterclass (Hindi)', id: 'fyYhJ9pYPgA' }, { title: 'Deadlift Common Mistakes', id: 'NYN3UGCYisk' }]
+  },
+  'Dumbbell Flyes': {
+    muscles: ['Chest', 'Front Deltoids'], calsBurn30min: 130,
+    img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop',
+    steps: ['Lie on a flat bench with dumbbells above your chest, palms facing each other.', 'Lower the dumbbells out to the sides in a wide arc.', 'Feel a deep stretch in your chest at the bottom.', 'Squeeze chest to bring dumbbells back together.'],
+    variations: ['Incline DB Flyes', 'Decline DB Flyes', 'Cable Flyes', 'Machine Pec Deck'],
+    benefits: ['Excellent chest stretch and contraction', 'Isolates the pectorals', 'Great for chest development and shape'],
+    precautions: ['Don\'t go too heavy — this is an isolation movement', 'Keep slight bend in elbows', 'Control the descent'],
+    videos: [{ title: 'Dumbbell Fly Form', id: 'eozdVDA78K0' }, { title: 'Chest Fly Variations', id: 'UKwkChzThig' }]
+  },
+  'Hack Squat': {
+    muscles: ['Quadriceps', 'Glutes', 'Hamstrings'], calsBurn30min: 200,
+    img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop',
+    steps: ['Position yourself on the hack squat machine with shoulders under pads.', 'Place feet shoulder-width apart on the platform.', 'Lower yourself until thighs are parallel.', 'Drive up through your heels to the starting position.'],
+    variations: ['Reverse Hack Squat', 'Narrow Stance Hack', 'Single-Leg Hack Squat'],
+    benefits: ['Targets quads with reduced spinal load', 'Machine guided path for safer lifting', 'Great for building quad mass'],
+    precautions: ['Don\'t lock knees at the top', 'Keep feet flat on platform', 'Use full range of motion'],
+    videos: [{ title: 'Hack Squat Tutorial', id: '0tn5K9NlCfo' }, { title: 'Hack Squat vs Leg Press', id: 'gMfwYfuBIck' }]
+  },
+  'Seated Cable Row': {
+    muscles: ['Middle Back', 'Lats', 'Biceps', 'Rear Deltoids'], calsBurn30min: 145,
+    img: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop',
+    steps: ['Sit at the cable row machine with feet on the platform.', 'Grab the handle and sit upright with slight lean forward.', 'Pull the handle towards your abdomen, squeezing shoulder blades.', 'Slowly extend arms back to starting position.'],
+    variations: ['Wide-Grip Cable Row', 'Single-Arm Cable Row', 'Close-Grip Row', 'Face-Away Cable Row'],
+    benefits: ['Builds back thickness', 'Constant tension throughout', 'Develops posture muscles', 'Low injury risk'],
+    precautions: ['Don\'t round your back', 'Avoid excessive body swing', 'Keep chest up throughout'],
+    videos: [{ title: 'Seated Cable Row Form', id: 'GZbfZ033f74' }, { title: 'Cable Row Variations', id: 'sP_4vybjVJs' }]
+  },
+  'Leg Curl (Seated)': {
+    muscles: ['Hamstrings', 'Calves'], calsBurn30min: 115,
+    img: 'https://images.unsplash.com/photo-1584735935682-2f2b694b8e88?q=80&w=400&auto=format&fit=crop',
+    steps: ['Sit on the seated leg curl machine with the pad on your lower legs.', 'Curl your legs down and under the seat.', 'Squeeze hamstrings at full contraction.', 'Slowly return to starting position.'],
+    variations: ['Lying Leg Curl', 'Standing Leg Curl', 'Nordic Curls', 'Swiss Ball Curls'],
+    benefits: ['Isolates hamstrings effectively', 'Seated position provides stability', 'Easy to adjust weight'],
+    precautions: ['Control the weight — don\'t let it snap back', 'Don\'t lift your hips off the seat', 'Use full range of motion'],
+    videos: [{ title: 'Seated Leg Curl Form', id: 'Orxowest56U' }, { title: 'Hamstring Training', id: 'F488SA4dxl0' }]
+  },
+  'Skull Crushers': {
+    muscles: ['Triceps'], calsBurn30min: 120,
+    img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop',
+    steps: ['Lie on a bench holding an EZ bar or dumbbells above your chest.', 'Lower the weight towards your forehead by bending your elbows.', 'Keep upper arms stationary and elbows pointing at the ceiling.', 'Extend arms back to the starting position.'],
+    variations: ['Dumbbell Skull Crushers', 'Cable Skull Crushers', 'Decline Skull Crushers', 'JM Press'],
+    benefits: ['Best exercise for long head of tricep', 'Builds arm mass rapidly', 'Great for lockout strength'],
+    precautions: ['Use controlled tempo — don\'t drop weight on forehead', 'Keep elbows from flaring', 'Start light to learn the movement'],
+    videos: [{ title: 'Skull Crusher Form', id: 'd_KZxkY_0cM' }, { title: 'Tricep Mass Building', id: 'nRiJVZDpdL0' }]
+  },
+  'Front Squat': {
+    muscles: ['Quadriceps', 'Core', 'Upper Back', 'Glutes'], calsBurn30min: 210,
+    img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop',
+    steps: ['Rest the barbell on your front delts with elbows high.', 'Stand with feet shoulder-width apart.', 'Squat down, keeping torso upright.', 'Drive back up through your heels.'],
+    variations: ['Cross-Arm Front Squat', 'Goblet Squat', 'Zercher Squat', 'Dumbbell Front Squat'],
+    benefits: ['Superior quad development vs back squat', 'Forces upright posture', 'Less spinal compression', 'Builds core strength'],
+    precautions: ['Keep elbows high throughout', 'Don\'t let the bar roll forward', 'Work on wrist flexibility first'],
+    videos: [{ title: 'Front Squat Tutorial', id: 'v-mQm_droHg' }, { title: 'Front vs Back Squat', id: 'brFHyOtTwH4' }]
+  },
+  'Dumbbell Row': {
+    muscles: ['Lats', 'Rhomboids', 'Biceps', 'Rear Deltoids'], calsBurn30min: 155,
+    img: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop',
+    steps: ['Place one knee and hand on a bench for support.', 'Hold a dumbbell in the other hand with arm extended.', 'Row the dumbbell up to your hip, squeezing your back.', 'Lower under control and repeat.'],
+    variations: ['Chest-Supported Row', 'Kroc Rows', 'Meadows Row', 'Two-Arm DB Row'],
+    benefits: ['Corrects imbalances between sides', 'Great for back thickness', 'Supported position reduces lower back stress'],
+    precautions: ['Keep your back flat', 'Don\'t rotate your torso', 'Pull with your back, not your arm'],
+    videos: [{ title: 'Dumbbell Row Technique', id: 'pYcpY20QaE8' }, { title: 'One-Arm Row Form', id: 'xl1YOc4kl_k' }]
+  },
+  'Shrugs': {
+    muscles: ['Trapezius', 'Rhomboids'], calsBurn30min: 100,
+    img: 'https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?q=80&w=400&auto=format&fit=crop',
+    steps: ['Hold dumbbells or a barbell with arms at your sides.', 'Shrug your shoulders straight up towards your ears.', 'Hold the contraction for 1-2 seconds.', 'Lower slowly back to the starting position.'],
+    variations: ['Barbell Shrugs', 'Trap Bar Shrugs', 'Behind-Back Shrugs', 'Cable Shrugs'],
+    benefits: ['Builds massive traps', 'Improves posture and neck stability', 'Simple and effective'],
+    precautions: ['Don\'t roll your shoulders — shrug straight up', 'Use straps for heavy sets', 'Keep chin tucked slightly'],
+    videos: [{ title: 'Shrug Form Guide', id: 'cJRVVxmytaM' }, { title: 'Trap Building Exercises', id: 'NAqCVe2mBPY' }]
+  },
+  // === Home Workout / Bodyweight Exercises ===
+  'Push-Ups': {
+    muscles: ['Chest', 'Triceps', 'Front Deltoids', 'Core'], calsBurn30min: 170,
+    img: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop',
+    steps: ['Start in a high plank position with hands slightly wider than shoulders.', 'Lower your body until chest nearly touches the floor.', 'Keep your body in a straight line from head to heels.', 'Push back up to the starting position.'],
+    variations: ['Diamond Push-Ups', 'Wide Push-Ups', 'Decline Push-Ups', 'Pike Push-Ups', 'Clap Push-Ups', 'Archer Push-Ups'],
+    benefits: ['No equipment needed', 'Builds functional upper body strength', 'Engages core throughout', 'Dozens of variations for progression'],
+    precautions: ['Keep hips level — don\'t sag or pike', 'Don\'t flare elbows out to 90 degrees', 'Full range of motion for best results'],
+    videos: [{ title: 'Perfect Push-Up Form', id: 'IODxDxX7oi4' }, { title: 'Push-Up Progression', id: '_A3-mVKGVzI' }]
+  },
+  'Burpees': {
+    muscles: ['Full Body', 'Chest', 'Legs', 'Core', 'Shoulders'], calsBurn30min: 350,
+    img: 'https://images.unsplash.com/photo-1517344884509-a0c97ec11bcc?q=80&w=400&auto=format&fit=crop',
+    steps: ['Stand with feet shoulder-width apart.', 'Drop into a squat and place hands on the floor.', 'Jump feet back into a plank and perform a push-up.', 'Jump feet forward to hands and explode upward into a jump.'],
+    variations: ['Half Burpees (no push-up)', 'Burpee Box Jumps', 'Burpee Pull-Ups', 'Single-Leg Burpees'],
+    benefits: ['Highest calorie burn per minute of any exercise', 'Full body conditioning', 'No equipment needed', 'Improves cardiovascular fitness rapidly'],
+    precautions: ['Land softly to protect joints', 'Scale down if needed — skip the push-up', 'Maintain form even when tired'],
+    videos: [{ title: 'Burpee Form & Variations', id: 'TU8QYVW0gDU' }, { title: 'Burpee HIIT Workout', id: 'qLBImHhCXSw' }]
+  },
+  'Mountain Climbers': {
+    muscles: ['Core', 'Hip Flexors', 'Shoulders', 'Quadriceps'], calsBurn30min: 280,
+    img: 'https://images.unsplash.com/photo-1517344884509-a0c97ec11bcc?q=80&w=400&auto=format&fit=crop',
+    steps: ['Start in a high plank position.', 'Drive one knee towards your chest rapidly.', 'Switch legs in a running motion.', 'Keep your hips level and core tight.'],
+    variations: ['Cross-Body Mountain Climbers', 'Slow Mountain Climbers', 'Sliding Mountain Climbers', 'Spiderman Mountain Climbers'],
+    benefits: ['Excellent cardio in a small space', 'Builds core strength and stability', 'Improves hip mobility', 'No equipment needed'],
+    precautions: ['Don\'t let your hips bounce up and down', 'Keep shoulders over wrists', 'Start slow and build speed'],
+    videos: [{ title: 'Mountain Climber Form', id: 'nmwgirgXLYM' }, { title: 'Core Cardio Workout', id: 'cnyGPwR4QaE' }]
+  },
+  'Plank': {
+    muscles: ['Core', 'Shoulders', 'Lower Back', 'Glutes'], calsBurn30min: 110,
+    img: 'https://images.unsplash.com/photo-1598971639058-fab3c3109a00?q=80&w=400&auto=format&fit=crop',
+    steps: ['Place forearms on the ground with elbows under shoulders.', 'Extend legs behind you on the balls of your feet.', 'Keep your body in a straight line from head to heels.', 'Hold the position while breathing normally.'],
+    variations: ['Side Plank', 'Plank Up-Downs', 'Plank Shoulder Taps', 'Plank Jacks', 'Reverse Plank'],
+    benefits: ['Builds isometric core strength', 'Improves posture and stability', 'No equipment needed', 'Can be done anywhere'],
+    precautions: ['Don\'t let hips sag or pike up', 'Keep breathing — don\'t hold your breath', 'Start with shorter holds and progress'],
+    videos: [{ title: 'Perfect Plank Form', id: 'ASdvN_XEl_c' }, { title: 'Plank Variations', id: 'UIPe6EgKLpQ' }]
+  },
+  'Bodyweight Squats': {
+    muscles: ['Quadriceps', 'Glutes', 'Hamstrings', 'Core'], calsBurn30min: 160,
+    img: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=400&auto=format&fit=crop',
+    steps: ['Stand with feet shoulder-width apart, toes slightly out.', 'Push hips back and bend knees to lower down.', 'Go as deep as your mobility allows while keeping heels on the ground.', 'Drive up through heels to standing.'],
+    variations: ['Jump Squats', 'Sumo Squats', 'Pistol Squats', 'Pulse Squats', 'Wall Sit'],
+    benefits: ['Foundation of all leg training', 'No equipment needed', 'Improves mobility and balance', 'Can be done anywhere'],
+    precautions: ['Keep knees tracking over toes', 'Don\'t round your back', 'Ensure heels stay on the ground'],
+    videos: [{ title: 'Bodyweight Squat Tutorial', id: 'aclHkVaku9U' }, { title: 'Squat Mobility', id: 'Dy28eq2PjcM' }]
+  },
+  'Jumping Jacks': {
+    muscles: ['Full Body', 'Calves', 'Shoulders', 'Core'], calsBurn30min: 250,
+    img: 'https://images.unsplash.com/photo-1517344884509-a0c97ec11bcc?q=80&w=400&auto=format&fit=crop',
+    steps: ['Stand with feet together, arms at your sides.', 'Jump feet apart while raising arms overhead.', 'Jump feet back together while lowering arms.', 'Maintain a steady rhythm.'],
+    variations: ['Star Jumps', 'Seal Jacks', 'Cross Jacks', 'Half Jacks'],
+    benefits: ['Great warm-up and cardio exercise', 'Burns calories efficiently', 'Gets heart rate up quickly', 'No equipment needed'],
+    precautions: ['Land softly on balls of feet', 'Avoid on hard surfaces if you have joint issues', 'Keep core engaged'],
+    videos: [{ title: 'Jumping Jack Variations', id: 'iSSAk4XCsRA' }, { title: 'Cardio Warm-Up Routine', id: '6rM7MrDbxbk' }]
+  },
+  'High Knees': {
+    muscles: ['Hip Flexors', 'Quadriceps', 'Core', 'Calves'], calsBurn30min: 290,
+    img: 'https://images.unsplash.com/photo-1517344884509-a0c97ec11bcc?q=80&w=400&auto=format&fit=crop',
+    steps: ['Stand tall with feet hip-width apart.', 'Drive one knee up to hip height while pumping opposite arm.', 'Quickly switch legs in a running motion.', 'Stay on the balls of your feet.'],
+    variations: ['Slow High Knees', 'High Knee Skips', 'In-Place Sprints', 'Seated High Knees'],
+    benefits: ['Excellent cardio and coordination', 'Strengthens hip flexors', 'Burns calories rapidly', 'Improves running form'],
+    precautions: ['Land softly', 'Keep core tight', 'Don\'t lean back'],
+    videos: [{ title: 'High Knees Technique', id: 'OAJ_J3EZkdY' }, { title: 'HIIT Cardio Moves', id: 'ml6cT4AZdqI' }]
+  },
+  'Tricep Dips (Bodyweight)': {
+    muscles: ['Triceps', 'Chest', 'Front Deltoids'], calsBurn30min: 150,
+    img: 'https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?q=80&w=400&auto=format&fit=crop',
+    steps: ['Place hands on a chair or bench behind you, fingers forward.', 'Extend legs in front of you with heels on the floor.', 'Lower your body by bending elbows to 90 degrees.', 'Push back up to full arm extension.'],
+    variations: ['Bent Knee Dips', 'Elevated Feet Dips', 'Weighted Bench Dips', 'Single-Leg Bench Dips'],
+    benefits: ['No gym equipment needed — use a chair', 'Effective tricep isolation', 'Easy to modify difficulty'],
+    precautions: ['Don\'t go too deep — protect your shoulders', 'Keep back close to the bench', 'Don\'t lock elbows at the top'],
+    videos: [{ title: 'Bench Dip Form', id: '6kALZikXxLc' }, { title: 'Home Tricep Exercises', id: 'vB5OHsJ3EME' }]
   }
 };
 
@@ -2789,6 +3172,12 @@ function renderWorkouts() {
         </div>
         <span class="material-symbols-rounded twb-arrow">arrow_forward</span>
       </div>
+
+      <!-- Home Workout Quick Start -->
+      <button class="btn-primary" id="btn-quick-home-workout" style="width:100%;padding:var(--spacing-3);margin-top:var(--spacing-4);margin-bottom:var(--spacing-6);display:flex;align-items:center;justify-content:center;gap:8px;background:var(--tertiary);color:var(--on-tertiary)">
+        <span class="material-symbols-rounded">home</span>
+        Quick Start Home Workout
+      </button>
 
       <!-- Weekly Schedule -->
       <div class="section-header" style="margin-top:var(--spacing-6)">
@@ -2839,6 +3228,12 @@ function renderWorkouts() {
     Router.navigate('day_workout');
   });
 
+  // Home workout quick start
+  $('#btn-quick-home-workout')?.addEventListener('click', () => {
+    Store.setData('selected_day', 'Home_Workout_Virtual_Day');
+    Router.navigate('day_workout');
+  });
+
   // Day selection -> navigate to dedicated day screen
   $$('.schedule-day-card').forEach(card => {
     card.addEventListener('click', () => {
@@ -2882,12 +3277,13 @@ function renderDayWorkout() {
   const todayDay = days[todayIdx];
 
   const selectedDay = Store.getData('selected_day', todayDay);
-  const daySchedule = schedule.find(s => s.day === selectedDay) || schedule[0];
+  const isHomeWorkout = selectedDay === 'Home_Workout_Virtual_Day';
+  const daySchedule = isHomeWorkout ? { day: 'Today', workout: 'Home Workout', type: 'Bodyweight', duration: '30 min' } : (schedule.find(s => s.day === selectedDay) || schedule[0]);
   // Use custom exercises if set, otherwise default
   const customKey = 'custom_exercises_' + selectedDay;
   const customExercises = Store.getData(customKey, null);
   const exercises = customExercises || (WORKOUT_EXERCISES[daySchedule.workout] || []);
-  const isToday = selectedDay === todayDay;
+  const isToday = selectedDay === todayDay || isHomeWorkout;
   const totalSets = exercises.reduce((a, e) => a + e.sets.length, 0);
   const doneSets = exercises.reduce((a, e) => a + e.sets.filter(s => s.done).length, 0);
   const progressPct = totalSets > 0 ? Math.round((doneSets / totalSets) * 100) : 0;
@@ -2900,7 +3296,7 @@ function renderDayWorkout() {
     'Full Body': 'bolt', 'Cardio HIIT': 'directions_run', 'Active Recovery': 'self_improvement',
     'Yoga & Mobility': 'self_improvement', 'Core & Abs': 'exercise',
     'Arms & Shoulders': 'fitness_center', 'Back & Biceps': 'fitness_center',
-    'Chest & Triceps': 'fitness_center', 'Rest Day': 'hotel',
+    'Chest & Triceps': 'fitness_center', 'Rest Day': 'hotel', 'Home Workout': 'home'
   };
   const workoutIcon = workoutIcons[daySchedule.workout] || 'fitness_center';
 
@@ -2911,7 +3307,7 @@ function renderDayWorkout() {
       <div style="display:flex;align-items:center;gap:var(--spacing-3);margin-bottom:var(--spacing-4)">
         <button class="btn-icon" id="day-back-btn"><span class="material-symbols-rounded">arrow_back</span></button>
         <div style="flex:1">
-          <h1 class="headline-md" style="margin:0">${fullDayNames[selectedDay]}</h1>
+          <h1 class="headline-md" style="margin:0">${isHomeWorkout ? 'Home Workout' : fullDayNames[selectedDay]}</h1>
           ${isToday ? '<span class="chip chip-active" style="font-size:0.6rem;padding:2px 10px;margin-top:4px;display:inline-block">TODAY</span>' : ''}
         </div>
       </div>
@@ -4046,12 +4442,23 @@ function renderWater() {
         <div class="toggle-row">
           <div>
             <div class="title-sm">Water Reminders</div>
-            <div class="body-sm text-surface-variant">Get notified every 30 minutes</div>
+            <div class="body-sm text-surface-variant">Get notified periodically</div>
           </div>
           <div class="toggle-switch ${Store.getData('water_reminder_on', true) ? 'active' : ''}" id="water-reminder-toggle">
             <div class="toggle-knob"></div>
           </div>
         </div>
+        ${Store.getData('water_reminder_on', true) ? `
+        <div style="margin-top:var(--spacing-4);padding-top:var(--spacing-4);border-top:1px solid var(--surface-variant)">
+          <div class="body-sm text-surface-variant" style="margin-bottom:8px">Reminder Interval</div>
+          <div class="alarm-interval-grid">
+            ${[30, 45, 60, 90, 120].map(mins => `
+              <div class="alarm-interval-chip ${Store.getData('water_reminder_interval', 30) === mins ? 'active' : ''}" data-mins="${mins}">
+                ${mins >= 60 ? (mins/60) + 'h' : mins + 'm'}
+              </div>
+            `).join('')}
+          </div>
+        </div>` : ''}
       </div>
     </div>
     ${bottomNav('water')}
@@ -4075,11 +4482,22 @@ function renderWater() {
   $('#water-reminder-toggle')?.addEventListener('click', function() {
     const isActive = this.classList.toggle('active');
     Store.setData('water_reminder_on', isActive);
+    renderWater(); // Re-render to show/hide interval options
     if (isActive) {
       startWaterReminder();
     } else {
       stopWaterReminder();
     }
+  });
+
+  // Interval selection
+  $$('.alarm-interval-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const mins = parseInt(chip.dataset.mins);
+      Store.setData('water_reminder_interval', mins);
+      startWaterReminder(); // Restart timer with new interval
+      renderWater();
+    });
   });
 }
 
@@ -5137,6 +5555,7 @@ function renderExercises() {
               <div style="flex:1">
                 <div class="title-sm">${exName}</div>
                 <div class="body-sm text-surface-variant" style="font-size:0.7rem;margin-top:4px">${det.muscles.join(', ')}</div>
+                ${det.calsBurn30min ? `<div class="calorie-badge-sm"><span class="material-symbols-rounded" style="font-size:12px">local_fire_department</span>${det.calsBurn30min} kcal/30min</div>` : ''}
               </div>
               <span class="material-symbols-rounded text-surface-variant">chevron_right</span>
             </div>
@@ -5195,8 +5614,48 @@ function renderExerciseDetail() {
       </div>
 
       <div class="ex-detail-body">
+        <!-- Calorie Burn Badge -->
+        ${details.calsBurn30min ? `
+        <div class="calorie-burn-hero">
+          <span class="material-symbols-rounded" style="font-size:20px;color:var(--secondary)">local_fire_department</span>
+          <div>
+            <div class="calorie-burn-value">${details.calsBurn30min} kcal</div>
+            <div class="calorie-burn-label">estimated per 30 min</div>
+          </div>
+        </div>` : ''}
+
+        <!-- Exercise Videos (Embedded) -->
+        ${videos.length > 0 ? `
+        <div class="detail-section" style="margin-top:var(--spacing-4)">
+          <div class="detail-section-header" style="margin-bottom:var(--spacing-2)">
+            <span class="material-symbols-rounded detail-section-icon" style="color:#ff4444">play_circle</span>
+            <h3 class="section-title">Exercise Video</h3>
+          </div>
+          <div class="video-embed-list">
+            ${videos.map(v => `
+              <div class="video-embed-card">
+                <div class="video-embed-container">
+                  <iframe 
+                    src="https://www.youtube.com/embed/${v.id}" 
+                    title="${v.title}" 
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                    allowfullscreen
+                    loading="lazy"
+                  ></iframe>
+                </div>
+                <a href="https://www.youtube.com/watch?v=${v.id}" target="_blank" rel="noopener noreferrer" class="video-youtube-link">
+                  <span class="material-symbols-rounded" style="font-size:14px">open_in_new</span>
+                  Watch on YouTube
+                </a>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        ` : ''}
+
         <!-- Muscle Tags -->
-        <div class="exercise-tags">
+        <div class="exercise-tags" style="margin-top:var(--spacing-4)">
           ${details.muscles.map(m => `<span class="exercise-tag">${m}</span>`).join('')}
         </div>
 
@@ -5284,29 +5743,7 @@ function renderExerciseDetail() {
         </div>
         ` : ''}
 
-        <!-- Suggested Videos -->
-        ${videos.length > 0 ? `
-        <div class="detail-section">
-          <div class="detail-section-header">
-            <span class="material-symbols-rounded detail-section-icon" style="color:#ff4444">play_circle</span>
-            <h3 class="section-title">Suggested Videos</h3>
-          </div>
-          <div class="video-list">
-            ${videos.map(v => `
-              <a href="${v.url}" target="_blank" rel="noopener noreferrer" class="video-card">
-                <div class="video-card-icon">
-                  <span class="material-symbols-rounded">play_circle</span>
-                </div>
-                <div class="video-card-info">
-                  <div class="video-card-title">${v.title}</div>
-                  <div class="video-card-sub">YouTube</div>
-                </div>
-                <span class="material-symbols-rounded video-card-arrow">open_in_new</span>
-              </a>
-            `).join('')}
-          </div>
-        </div>
-        ` : ''}
+
 
         <!-- Log Set -->
         <div class="detail-section">
@@ -5383,3 +5820,81 @@ function renderExerciseDetail() {
     renderExerciseDetail();
   });
 }
+
+// ============================================
+// GLOBAL SWIPE NAVIGATION
+// ============================================
+let swipeTouchStartX = 0;
+let swipeTouchStartY = 0;
+
+document.addEventListener('touchstart', e => {
+  swipeTouchStartX = e.changedTouches[0].screenX;
+  swipeTouchStartY = e.changedTouches[0].screenY;
+}, { passive: true });
+
+document.addEventListener('touchend', e => {
+  const swipeTouchEndX = e.changedTouches[0].screenX;
+  const swipeTouchEndY = e.changedTouches[0].screenY;
+  
+  const diffX = swipeTouchStartX - swipeTouchEndX;
+  const diffY = swipeTouchStartY - swipeTouchEndY;
+  
+  // Need significant horizontal swipe (>100px), not vertical scrolling (<60px)
+  if (Math.abs(diffX) > 100 && Math.abs(diffY) < 60) {
+    const navOrder = ['dashboard', 'diet', 'workouts', 'steps', 'water', 'trends'];
+    const curIdx = navOrder.indexOf(Router.current);
+    if (curIdx === -1) return; // Not on a main tab
+    
+    if (diffX > 0 && curIdx < navOrder.length - 1) {
+      // Swipe Left -> Next Tab
+      Router.navigate(navOrder[curIdx + 1]);
+    } else if (diffX < 0 && curIdx > 0) {
+      // Swipe Right -> Prev Tab
+      Router.navigate(navOrder[curIdx - 1]);
+    }
+  }
+}, { passive: true });
+
+// ============================================
+// AUTO SLEEP TRACKER
+// ============================================
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    Store.setData('last_hidden_time', Date.now());
+  } else if (document.visibilityState === 'visible') {
+    const hiddenTime = Store.getData('last_hidden_time', null);
+    if (hiddenTime) {
+      const msHidden = Date.now() - hiddenTime;
+      const hoursHidden = msHidden / (1000 * 60 * 60);
+      
+      // Auto-log sleep if hidden for more than 4 hours but less than 16 hours
+      if (hoursHidden >= 4 && hoursHidden <= 16) {
+        const today = new Date().toDateString();
+        const sleepData = Store.getData('sleep_history', []);
+        const existing = sleepData.findIndex(e => e.date === today);
+        const roundedHrs = Math.round(hoursHidden * 10) / 10;
+        
+        let shouldUpdate = false;
+        if (existing >= 0) {
+            if (sleepData[existing].hours < roundedHrs) {
+                sleepData[existing].hours = roundedHrs;
+                shouldUpdate = true;
+            }
+        } else {
+            sleepData.push({ date: today, hours: roundedHrs });
+            if (sleepData.length > 90) sleepData.shift();
+            shouldUpdate = true;
+        }
+
+        if (shouldUpdate) {
+            Store.setData('sleep_history', sleepData);
+            showGoalToast('Auto Sleep Tracked', `Detected ${roundedHrs}h of sleep (device standby)`, '🌙');
+            if (Router.current === 'dashboard' || Router.current === 'trends') {
+                Router.navigate(Router.current);
+            }
+        }
+      }
+      Store.setData('last_hidden_time', null);
+    }
+  }
+});

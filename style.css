@@ -3520,3 +3520,206 @@ ul, ol { list-style: none; }
   background: var(--surface-container-high);
   color: var(--primary);
 }
+
+/* ============================================ */
+/* YouTube Video Embeds                          */
+/* ============================================ */
+.video-embed-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-4);
+}
+.video-embed-card {
+  background: var(--surface-container);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  border: 1px solid rgba(107,255,143,0.08);
+}
+.video-embed-title {
+  font-family: var(--font-display);
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--on-surface);
+  padding: var(--spacing-3) var(--spacing-4) var(--spacing-2);
+}
+.video-embed-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 56.25%; /* 16:9 aspect ratio */
+  background: #000;
+}
+.video-embed-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+.video-youtube-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--spacing-2) var(--spacing-4) var(--spacing-3);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--primary);
+  text-decoration: none;
+  transition: opacity var(--transition-fast);
+}
+.video-youtube-link:hover {
+  opacity: 0.7;
+}
+
+/* ============================================ */
+/* Calorie Burn Badges                           */
+/* ============================================ */
+.calorie-burn-hero {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  background: linear-gradient(135deg, rgba(255,183,77,0.12) 0%, rgba(255,107,107,0.08) 100%);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--spacing-4);
+  border: 1px solid rgba(255,183,77,0.15);
+}
+.calorie-burn-value {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--secondary);
+}
+.calorie-burn-label {
+  font-size: 0.7rem;
+  color: var(--on-surface-variant);
+  font-weight: 500;
+}
+.calorie-badge-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--secondary);
+  background: rgba(255,183,77,0.1);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+}
+
+/* ============================================ */
+/* Sleep Dashboard Widget                        */
+/* ============================================ */
+.sleep-widget {
+  background: linear-gradient(135deg, var(--surface-container) 0%, rgba(97,194,255,0.08) 100%);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-4);
+  border: 1px solid rgba(97,194,255,0.12);
+}
+.sleep-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-3);
+}
+.sleep-widget-stats {
+  display: flex;
+  gap: var(--spacing-3);
+  margin-bottom: var(--spacing-3);
+}
+.sleep-stat {
+  flex: 1;
+  text-align: center;
+  padding: var(--spacing-2);
+  background: var(--surface-container-high);
+  border-radius: var(--radius-lg);
+}
+.sleep-stat-value {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: var(--tertiary);
+}
+.sleep-stat-label {
+  font-size: 0.65rem;
+  color: var(--on-surface-variant);
+  font-weight: 600;
+}
+.sleep-quick-log {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+}
+
+/* ============================================ */
+/* Hydration Alarm Intervals                     */
+/* ============================================ */
+.alarm-interval-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+}
+.alarm-interval-chip {
+  padding: 8px 16px;
+  border-radius: var(--radius-full);
+  background: var(--surface-container-high);
+  color: var(--on-surface);
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.alarm-interval-chip:hover {
+  background: var(--surface-container);
+  border-color: var(--tertiary);
+}
+.alarm-interval-chip.active {
+  background: rgba(97,194,255,0.15);
+  border-color: var(--tertiary);
+  color: var(--tertiary);
+  font-weight: 700;
+}
+.alarm-time-range {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  margin-top: var(--spacing-3);
+  padding: var(--spacing-3);
+  background: var(--surface-container-high);
+  border-radius: var(--radius-lg);
+}
+.alarm-time-input {
+  flex: 1;
+  padding: var(--spacing-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--surface-variant);
+  background: var(--surface-container);
+  color: var(--on-surface);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  text-align: center;
+}
+
+/* ============================================ */
+/* Step Counter Dashboard Widget                 */
+/* ============================================ */
+.steps-dashboard-widget {
+  background: linear-gradient(135deg, var(--surface-container) 0%, rgba(107,255,143,0.06) 100%);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-4);
+  border: 1px solid rgba(107,255,143,0.12);
+  cursor: pointer;
+  transition: transform var(--transition-fast);
+}
+.steps-dashboard-widget:hover {
+  transform: scale(1.01);
+}
+
+/* Custom Meal Star Indicator */
+.food-result-custom {
+  border-left: 3px solid var(--primary);
+}
+
