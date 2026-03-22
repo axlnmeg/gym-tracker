@@ -2441,8 +2441,8 @@ const EXERCISE_DETAILS = {
       'Avoid bouncing at the bottom of the squat'
     ],
     videos: [
-      { title: 'Barbell Squat Form (Hindi)', id: '_CwSTgVPN1o' },
-      { title: 'Perfect Squat Form Guide', id: 'Dy28eq2PjcM' }
+      { title: 'Barbell Squat Form (Hindi)', id: 'gzd9gcsr4Bs' },
+      { title: 'Perfect Squat Form Guide (Hindi)', id: 'gzd9gcsr4Bs' }
     ]
   },
   'Leg Press': {
@@ -2471,8 +2471,8 @@ const EXERCISE_DETAILS = {
       'Avoid placing feet too low which stresses the knees'
     ],
     videos: [
-      { title: 'Leg Press Form & Foot Placement', id: 'IZxyjW7MPJQ' },
-      { title: 'Leg Press Variations for Growth', id: 'yZmx_Ac3880' }
+      { title: 'Leg Press Form & Foot Placement (Hindi)', id: 'ubNzAWQPzwY' },
+      { title: 'Leg Press Variations for Growth (Hindi)', id: 'Ytff2lee8dA' }
     ]
   },
   'Romanian Deadlift': {
@@ -2501,8 +2501,8 @@ const EXERCISE_DETAILS = {
       'Stop lowering when you feel a strong hamstring stretch, not pain'
     ],
     videos: [
-      { title: 'Romanian Deadlift Masterclass', id: '_oyxCn2iSjU' },
-      { title: 'RDL vs Stiff-Leg Deadlift', id: 'cYKYGwcg0U8' }
+      { title: 'Romanian Deadlift Masterclass (Hindi)', id: '0jEnX9QRmC0' },
+      { title: 'RDL vs Stiff-Leg Deadlift (Hindi)', id: 'VFIKI6ihCmc' }
     ]
   },
 
@@ -2532,8 +2532,8 @@ const EXERCISE_DETAILS = {
       'Ensure you have enough space to walk safely'
     ],
     videos: [
-      { title: 'Walking Lunge Technique', id: 'L8fvypPH1LY' },
-      { title: 'Lunge Variations for Legs', id: 'wrwwXE_5-pI' }
+      { title: 'Walking Lunge Technique (Hindi)', id: 'jBKQ7Dyxqoo' },
+      { title: 'Lunge Variations for Legs (Hindi)', id: '4zMS03uOnyo' }
     ]
   },
   'Bench Press': {
@@ -2562,8 +2562,8 @@ const EXERCISE_DETAILS = {
       'Ensure your wrists stay straight and stacked over elbows'
     ],
     videos: [
-      { title: 'Bench Press Form for Beginners', id: '4Y2ZdHCOXok' },
-      { title: 'Increase Your Bench Press', id: 'vcBig73ojpE' }
+      { title: 'Bench Press Form for Beginners (Hindi)', id: '_FkbD0FhgVE' },
+      { title: 'Increase Your Bench Press (Hindi)', id: 'FIgRcN4_Uic' }
     ]
   },
   'Barbell Bench Press': {
@@ -2592,8 +2592,8 @@ const EXERCISE_DETAILS = {
       'Control the descent for at least 2 seconds'
     ],
     videos: [
-      { title: 'Bench Press Tutorial (Hindi)', id: 'rUqt6vvHnEU' },
-      { title: 'Fix Common Bench Press Mistakes', id: 'BYKScL2sgCs' }
+      { title: 'Bench Press Tutorial (Hindi)', id: 'fCmZngHLOts' },
+      { title: 'Fix Common Bench Press Mistakes (Hindi)', id: 'MGFtGTUib7E' }
     ]
   },
   'Overhead Press': {
@@ -2623,7 +2623,7 @@ const EXERCISE_DETAILS = {
     ],
     videos: [
       { title: 'Overhead Press Form (Hindi)', id: 'bUj5ty1ZsZE' },
-      { title: 'Overhead Press Form Guide', id: 'QAQ64hK4Xxs' }
+      { title: 'Overhead Press Form Guide (Hindi)', id: 'cOKFf_8z3NM' }
     ]
   },
   'Pull Ups': {
@@ -2652,8 +2652,8 @@ const EXERCISE_DETAILS = {
       'Allow full arm extension at the bottom for full range of motion'
     ],
     videos: [
-      { title: 'Pull-Up Progression (Hindi)', id: 'Qxx0EE4evyI' },
-      { title: 'Advanced Pull-Up Variations', id: 'brhRXlOhsAM' }
+      { title: 'Pull-Up Progression (Hindi)', id: 'rWCY5k5rt_c' },
+      { title: 'Advanced Pull-Up Variations (Hindi)', id: '70n4MbkhEMs' }
     ]
   },
   'Barbell Rows': {
@@ -2682,8 +2682,8 @@ const EXERCISE_DETAILS = {
       'Do not jerk the bar up — initiate the pull with your back muscles'
     ],
     videos: [
-      { title: 'Barbell Row Form Guide', id: 'FWJR5Ve8bnQ' },
-      { title: 'Row Variations for Back Thickness', id: 'KDEl3AmZbVE' }
+      { title: 'Barbell Row Form Guide (Hindi)', id: 'MXfyuB6DjWE' },
+      { title: 'Row Variations for Back Thickness (Hindi)', id: 'fhCbdbRnVuo' }
     ]
   },
   'Barbell Row': {
@@ -2712,8 +2712,8 @@ const EXERCISE_DETAILS = {
       'Do not jerk the bar up — initiate the pull with your back muscles'
     ],
     videos: [
-      { title: 'Barbell Row Technique', id: 'FWJR5Ve8bnQ' },
-      { title: 'Build a Bigger Back with Rows', id: 'T3N-TO4reLQ' }
+      { title: 'Barbell Row Technique (Hindi)', id: 'MXfyuB6DjWE' },
+      { title: 'Build a Bigger Back with Rows (Hindi)', id: 'VQsnCSOQdUA' }
     ]
   },
   'Incline Dumbbell Press': {
@@ -2742,8 +2742,8 @@ const EXERCISE_DETAILS = {
       'Use a spotter for very heavy sets to help with unracking'
     ],
     videos: [
-      { title: 'Incline Dumbbell Press Tutorial', id: '8iPEnn-ltC8' },
-      { title: 'Upper Chest Growth Tips', id: 'SrqOu55lrYU' }
+      { title: 'Incline Dumbbell Press Tutorial (Hindi)', id: '9TRoVR_aKmw' },
+      { title: 'Upper Chest Growth Tips (Hindi)', id: 'mi5NxwSZJXk' }
     ]
   },
   'Cable Crossovers': {
@@ -2772,8 +2772,8 @@ const EXERCISE_DETAILS = {
       'Focus on chest squeeze, not arm movement'
     ],
     videos: [
-      { title: 'Cable Crossover Form Guide', id: 'taI4XduLpTk' },
-      { title: 'Cable Fly Variations', id: 'WEM9FCIPlxQ' }
+      { title: 'Cable Crossover Form Guide (Hindi)', id: 'NyO5y-G5Ceg' },
+      { title: 'Cable Fly Variations (Hindi)', id: 'ymB_N9Mstu8' }
     ]
   },
   'Leg Extensions': {
@@ -2802,8 +2802,8 @@ const EXERCISE_DETAILS = {
       'Do not swing the weight up using momentum'
     ],
     videos: [
-      { title: 'Leg Extension Technique', id: 'YyvSfVjQeL0' },
-      { title: 'Leg Extensions for Quad Growth', id: 'ljO4jkwv8wQ' }
+      { title: 'Leg Extension Technique (Hindi)', id: 'uM86QE59Tgc' },
+      { title: 'Leg Extensions for Quad Growth (Hindi)', id: 's3Kuv0w5Rfs' }
     ]
   },
   'Lying Leg Curls': {
@@ -2832,8 +2832,8 @@ const EXERCISE_DETAILS = {
       'Keep your toes pointed straight or slightly inward'
     ],
     videos: [
-      { title: 'Lying Leg Curl Form', id: 'ELOCsiu8n0c' },
-      { title: 'Hamstring Training Tips', id: 'F488SA4dxl0' }
+      { title: 'Lying Leg Curl Form (Hindi)', id: '_lgE0gPvbik' },
+      { title: 'Hamstring Training Tips (Hindi)', id: 'zQVave0mES0' }
     ]
   },
   'Calf Raises': {
@@ -2862,8 +2862,8 @@ const EXERCISE_DETAILS = {
       'Perform seated raises to target the soleus specifically'
     ],
     videos: [
-      { title: 'Calf Raise Form & Tips', id: '-M4-G8p8fmc' },
-      { title: 'How to Grow Stubborn Calves', id: 'gwBVFfIRlag' }
+      { title: 'Calf Raise Form & Tips (Hindi)', id: 'o2Nlk2-mfTI' },
+      { title: 'How to Grow Stubborn Calves (Hindi)', id: 'I_Le-H6RP2k' }
     ]
   },
   'Treadmill Sprints': {
@@ -2892,8 +2892,8 @@ const EXERCISE_DETAILS = {
       'Do not grip the handles while sprinting — use natural arm swing'
     ],
     videos: [
-      { title: 'Treadmill HIIT Sprint Workout', id: 'aKfC4A6HKDY' },
-      { title: 'Treadmill Sprint Technique', id: 'aaJ_Nll-k98' }
+      { title: 'Treadmill HIIT Sprint Workout (Hindi)', id: 'eGZ_3MbXAnM' },
+      { title: 'Treadmill Sprint Technique (Hindi)', id: 'E8_pIIAr90c' }
     ]
   },
   'Jump Rope': {
@@ -2922,8 +2922,8 @@ const EXERCISE_DETAILS = {
       'Start with short intervals and build up to longer sessions'
     ],
     videos: [
-      { title: 'Jump Rope for Beginners', id: 'FJmRQ5iTXKE' },
-      { title: 'Jump Rope HIIT Workout', id: 'hcfRGPVhOoU' }
+      { title: 'Jump Rope for Beginners (Hindi)', id: 'Nssl3QZL6L8' },
+      { title: 'Jump Rope HIIT Workout (Hindi)', id: 'LSg6Df6iTLQ' }
     ]
   },
   // === Additional Gym Exercises (from workout PDFs) ===
@@ -2934,7 +2934,7 @@ const EXERCISE_DETAILS = {
     variations: ['Arnold Press', 'Seated Barbell Press', 'Standing DB Press', 'Single-Arm DB Press'],
     benefits: ['Builds shoulder size and strength', 'Corrects imbalances between sides', 'Greater range of motion than barbell press', 'Engages stabilizer muscles'],
     precautions: ['Don\'t arch your back excessively', 'Lower the weight under control', 'Use lighter weight to master form first'],
-    videos: [{ title: 'Dumbbell Shoulder Press Guide', id: 'qEwKCR5JCog' }, { title: 'Shoulder Press Variations', id: 'B-aVuyhvLHU' }]
+    videos: [{ title: 'Dumbbell Shoulder Press Guide (Hindi)', id: 'P9o-UXG0JtI' }, { title: 'Shoulder Press Variations (Hindi)', id: 'cOKFf_8z3NM' }]
   },
   'Lateral Raises': {
     muscles: ['Side Deltoids', 'Traps'], calsBurn30min: 110,
@@ -2943,7 +2943,7 @@ const EXERCISE_DETAILS = {
     variations: ['Cable Lateral Raises', 'Seated Lateral Raises', 'Leaning Lateral Raises', 'Machine Lateral Raises'],
     benefits: ['Builds wide, capped shoulders', 'Targets the medial delt which creates shoulder width', 'Great isolation exercise'],
     precautions: ['Don\'t swing the weight — use strict form', 'Keep a slight bend in the elbows', 'Don\'t raise above shoulder height'],
-    videos: [{ title: 'Perfect Lateral Raise Form', id: '3VcKaXpzqRo' }, { title: 'Lateral Raise Mistakes', id: 'kDqklk1ZESo' }]
+    videos: [{ title: 'Perfect Lateral Raise Form (Hindi)', id: 'ZgjQt-MNmRo' }, { title: 'Lateral Raise Mistakes (Hindi)', id: 'OdsWUxeN1uY' }]
   },
   'Face Pulls': {
     muscles: ['Rear Deltoids', 'Rhomboids', 'Rotator Cuff'], calsBurn30min: 100,
@@ -2952,7 +2952,7 @@ const EXERCISE_DETAILS = {
     variations: ['Band Face Pulls', 'Prone Y-Raises', 'Reverse Flyes', 'TRX Face Pulls'],
     benefits: ['Essential for shoulder health and posture', 'Strengthens the rear delts and rotator cuff', 'Counterbalances pressing movements'],
     precautions: ['Use light weight — this is a corrective exercise', 'Don\'t use momentum', 'Keep elbows high'],
-    videos: [{ title: 'Face Pull Tutorial', id: 'rep-qVOkqgk' }, { title: 'Why Face Pulls Matter', id: 'eIq5CB9JfKE' }]
+    videos: [{ title: 'Face Pull Tutorial (Hindi)', id: 'LSoPzsCs0m4' }, { title: 'Why Face Pulls Matter (Hindi)', id: 'LSoPzsCs0m4' }]
   },
   'Dumbbell Bicep Curls': {
     muscles: ['Biceps', 'Forearms'], calsBurn30min: 120,
@@ -2961,7 +2961,7 @@ const EXERCISE_DETAILS = {
     variations: ['Hammer Curls', 'Concentration Curls', 'Incline Curls', 'Preacher Curls', 'Cable Curls'],
     benefits: ['Builds bicep peak and size', 'Strengthens grip and forearms', 'Easy to progressive overload'],
     precautions: ['Don\'t swing your body', 'Keep elbows pinned to your sides', 'Use full range of motion'],
-    videos: [{ title: 'Bicep Curl Form Guide', id: 'ykJmrZ5v0Oo' }, { title: 'Best Bicep Exercises', id: 'StGRhMfnUBM' }]
+    videos: [{ title: 'Bicep Curl Form Guide (Hindi)', id: '9xTirsGfz3E' }, { title: 'Best Bicep Exercises (Hindi)', id: 'Dbnso2Z1GFo' }]
   },
   'Tricep Pushdowns': {
     muscles: ['Triceps'], calsBurn30min: 110,
@@ -2970,7 +2970,7 @@ const EXERCISE_DETAILS = {
     variations: ['Rope Pushdowns', 'V-Bar Pushdowns', 'Single-Arm Pushdowns', 'Reverse Grip Pushdowns'],
     benefits: ['Isolates the triceps effectively', 'Constant tension from cable', 'Builds tricep mass and definition'],
     precautions: ['Keep elbows stationary', 'Don\'t lean forward excessively', 'Control the weight on the way up'],
-    videos: [{ title: 'Tricep Pushdown Form', id: '2-LAMcpzODU' }, { title: 'Tricep Cable Exercises', id: 'nRiJVZDpdL0' }]
+    videos: [{ title: 'Tricep Pushdown Form (Hindi)', id: 'fehf9ZV0tHY' }, { title: 'Tricep Cable Exercises (Hindi)', id: 'hp9IQlVcNW0' }]
   },
   'Lat Pulldown': {
     muscles: ['Lats', 'Biceps', 'Rear Deltoids'], calsBurn30min: 150,
@@ -2979,7 +2979,7 @@ const EXERCISE_DETAILS = {
     variations: ['Close-Grip Pulldown', 'Behind-Neck Pulldown', 'V-Bar Pulldown', 'Single-Arm Pulldown'],
     benefits: ['Builds a wide back', 'Great alternative to pull-ups', 'Allows precise weight selection', 'Develops lat width'],
     precautions: ['Don\'t lean too far back', 'Pull with your back, not your arms', 'Avoid behind-neck pulldowns if shoulders are tight'],
-    videos: [{ title: 'Lat Pulldown Technique', id: 'CAwf7n6Luuc' }, { title: 'Back Width Exercises', id: 'xqDz9L6k7WE' }]
+    videos: [{ title: 'Lat Pulldown Technique (Hindi)', id: 'IpNjEJ5ykBQ' }, { title: 'Back Width Exercises (Hindi)', id: 'fhCbdbRnVuo' }]
   },
   'Dips': {
     muscles: ['Chest', 'Triceps', 'Front Deltoids'], calsBurn30min: 190,
@@ -2988,7 +2988,7 @@ const EXERCISE_DETAILS = {
     variations: ['Weighted Dips', 'Bench Dips', 'Ring Dips', 'Machine-Assisted Dips'],
     benefits: ['Excellent compound movement for upper body', 'Builds chest and tricep mass', 'Bodyweight exercise that\'s easy to progressively overload'],
     precautions: ['Don\'t go too deep if shoulders are tight', 'Keep shoulders down and back', 'Start with assisted dips if needed'],
-    videos: [{ title: 'Dip Form Guide', id: 'dX_nSOOJIsE' }, { title: 'Weighted Dips Tutorial', id: '2z8JmcrW-As' }]
+    videos: [{ title: 'Dip Form Guide (Hindi)', id: 'z7TGLx1wYrU' }, { title: 'Weighted Dips Tutorial (Hindi)', id: 'z7TGLx1wYrU' }]
   },
   'Deadlift': {
     muscles: ['Glutes', 'Hamstrings', 'Lower Back', 'Traps', 'Core'], calsBurn30min: 250,
@@ -2997,7 +2997,7 @@ const EXERCISE_DETAILS = {
     variations: ['Sumo Deadlift', 'Trap Bar Deadlift', 'Deficit Deadlift', 'Rack Pulls', 'Pause Deadlift'],
     benefits: ['The ultimate full-body strength exercise', 'Builds the entire posterior chain', 'Massive hormonal response for muscle growth', 'Functional strength for daily life'],
     precautions: ['Never round your back', 'Keep the bar close to your body', 'Use mixed or hook grip for heavy loads', 'Warm up thoroughly'],
-    videos: [{ title: 'Deadlift Form Masterclass (Hindi)', id: 'fyYhJ9pYPgA' }, { title: 'Deadlift Common Mistakes', id: 'NYN3UGCYisk' }]
+    videos: [{ title: 'Deadlift Form Masterclass (Hindi)', id: 'xnPOPb_dHq4' }, { title: 'Deadlift Common Mistakes (Hindi)', id: 'dGe8v3HPHIA' }]
   },
   'Dumbbell Flyes': {
     muscles: ['Chest', 'Front Deltoids'], calsBurn30min: 130,
@@ -3006,7 +3006,7 @@ const EXERCISE_DETAILS = {
     variations: ['Incline DB Flyes', 'Decline DB Flyes', 'Cable Flyes', 'Machine Pec Deck'],
     benefits: ['Excellent chest stretch and contraction', 'Isolates the pectorals', 'Great for chest development and shape'],
     precautions: ['Don\'t go too heavy — this is an isolation movement', 'Keep slight bend in elbows', 'Control the descent'],
-    videos: [{ title: 'Dumbbell Fly Form', id: 'eozdVDA78K0' }, { title: 'Chest Fly Variations', id: 'UKwkChzThig' }]
+    videos: [{ title: 'Dumbbell Fly Form (Hindi)', id: 'rk8YayRoTRQ' }, { title: 'Chest Fly Variations (Hindi)', id: 'p7I4dCDiwTg' }]
   },
   'Hack Squat': {
     muscles: ['Quadriceps', 'Glutes', 'Hamstrings'], calsBurn30min: 200,
@@ -3015,7 +3015,7 @@ const EXERCISE_DETAILS = {
     variations: ['Reverse Hack Squat', 'Narrow Stance Hack', 'Single-Leg Hack Squat'],
     benefits: ['Targets quads with reduced spinal load', 'Machine guided path for safer lifting', 'Great for building quad mass'],
     precautions: ['Don\'t lock knees at the top', 'Keep feet flat on platform', 'Use full range of motion'],
-    videos: [{ title: 'Hack Squat Tutorial', id: '0tn5K9NlCfo' }, { title: 'Hack Squat vs Leg Press', id: 'gMfwYfuBIck' }]
+    videos: [{ title: 'Hack Squat Tutorial (Hindi)', id: 'g9i05umL5vc' }, { title: 'Hack Squat vs Leg Press (Hindi)', id: '8SN18G5DTFY' }]
   },
   'Seated Cable Row': {
     muscles: ['Middle Back', 'Lats', 'Biceps', 'Rear Deltoids'], calsBurn30min: 145,
@@ -3024,7 +3024,7 @@ const EXERCISE_DETAILS = {
     variations: ['Wide-Grip Cable Row', 'Single-Arm Cable Row', 'Close-Grip Row', 'Face-Away Cable Row'],
     benefits: ['Builds back thickness', 'Constant tension throughout', 'Develops posture muscles', 'Low injury risk'],
     precautions: ['Don\'t round your back', 'Avoid excessive body swing', 'Keep chest up throughout'],
-    videos: [{ title: 'Seated Cable Row Form', id: 'GZbfZ033f74' }, { title: 'Cable Row Variations', id: 'sP_4vybjVJs' }]
+    videos: [{ title: 'Seated Cable Row Form (Hindi)', id: 'vLj78iz5SBw' }, { title: 'Cable Row Variations (Hindi)', id: 'vLj78iz5SBw' }]
   },
   'Leg Curl (Seated)': {
     muscles: ['Hamstrings', 'Calves'], calsBurn30min: 115,
@@ -3033,7 +3033,7 @@ const EXERCISE_DETAILS = {
     variations: ['Lying Leg Curl', 'Standing Leg Curl', 'Nordic Curls', 'Swiss Ball Curls'],
     benefits: ['Isolates hamstrings effectively', 'Seated position provides stability', 'Easy to adjust weight'],
     precautions: ['Control the weight — don\'t let it snap back', 'Don\'t lift your hips off the seat', 'Use full range of motion'],
-    videos: [{ title: 'Seated Leg Curl Form', id: 'Orxowest56U' }, { title: 'Hamstring Training', id: 'F488SA4dxl0' }]
+    videos: [{ title: 'Seated Leg Curl Form (Hindi)', id: 'x-HN83Xc0o4' }, { title: 'Hamstring Training (Hindi)', id: '6kUln6qd9Ac' }]
   },
   'Skull Crushers': {
     muscles: ['Triceps'], calsBurn30min: 120,
@@ -3042,7 +3042,7 @@ const EXERCISE_DETAILS = {
     variations: ['Dumbbell Skull Crushers', 'Cable Skull Crushers', 'Decline Skull Crushers', 'JM Press'],
     benefits: ['Best exercise for long head of tricep', 'Builds arm mass rapidly', 'Great for lockout strength'],
     precautions: ['Use controlled tempo — don\'t drop weight on forehead', 'Keep elbows from flaring', 'Start light to learn the movement'],
-    videos: [{ title: 'Skull Crusher Form', id: 'd_KZxkY_0cM' }, { title: 'Tricep Mass Building', id: 'nRiJVZDpdL0' }]
+    videos: [{ title: 'Skull Crusher Form (Hindi)', id: 'ftTL1SYn4fo' }, { title: 'Tricep Mass Building (Hindi)', id: 'jxGOogdkjcI' }]
   },
   'Front Squat': {
     muscles: ['Quadriceps', 'Core', 'Upper Back', 'Glutes'], calsBurn30min: 210,
@@ -3051,7 +3051,7 @@ const EXERCISE_DETAILS = {
     variations: ['Cross-Arm Front Squat', 'Goblet Squat', 'Zercher Squat', 'Dumbbell Front Squat'],
     benefits: ['Superior quad development vs back squat', 'Forces upright posture', 'Less spinal compression', 'Builds core strength'],
     precautions: ['Keep elbows high throughout', 'Don\'t let the bar roll forward', 'Work on wrist flexibility first'],
-    videos: [{ title: 'Front Squat Tutorial', id: 'v-mQm_droHg' }, { title: 'Front vs Back Squat', id: 'brFHyOtTwH4' }]
+    videos: [{ title: 'Front Squat Tutorial (Hindi)', id: 'gzd9gcsr4Bs' }, { title: 'Front vs Back Squat (Hindi)', id: 'gzd9gcsr4Bs' }]
   },
   'Dumbbell Row': {
     muscles: ['Lats', 'Rhomboids', 'Biceps', 'Rear Deltoids'], calsBurn30min: 155,
@@ -3060,7 +3060,7 @@ const EXERCISE_DETAILS = {
     variations: ['Chest-Supported Row', 'Kroc Rows', 'Meadows Row', 'Two-Arm DB Row'],
     benefits: ['Corrects imbalances between sides', 'Great for back thickness', 'Supported position reduces lower back stress'],
     precautions: ['Keep your back flat', 'Don\'t rotate your torso', 'Pull with your back, not your arm'],
-    videos: [{ title: 'Dumbbell Row Technique', id: 'pYcpY20QaE8' }, { title: 'One-Arm Row Form', id: 'xl1YOc4kl_k' }]
+    videos: [{ title: 'Dumbbell Row Technique (Hindi)', id: 'd3w0ZzN8ypE' }, { title: 'One-Arm Row Form (Hindi)', id: 'd3w0ZzN8ypE' }]
   },
   'Shrugs': {
     muscles: ['Trapezius', 'Rhomboids'], calsBurn30min: 100,
@@ -3069,7 +3069,7 @@ const EXERCISE_DETAILS = {
     variations: ['Barbell Shrugs', 'Trap Bar Shrugs', 'Behind-Back Shrugs', 'Cable Shrugs'],
     benefits: ['Builds massive traps', 'Improves posture and neck stability', 'Simple and effective'],
     precautions: ['Don\'t roll your shoulders — shrug straight up', 'Use straps for heavy sets', 'Keep chin tucked slightly'],
-    videos: [{ title: 'Shrug Form Guide', id: 'cJRVVxmytaM' }, { title: 'Trap Building Exercises', id: 'NAqCVe2mBPY' }]
+    videos: [{ title: 'Shrug Form Guide (Hindi)', id: 'rFsSeClGnNA' }, { title: 'Trap Building Exercises (Hindi)', id: 'lqC4XOIqUqE' }]
   },
   // === Home Workout / Bodyweight Exercises ===
   'Push-Ups': {
@@ -3079,7 +3079,7 @@ const EXERCISE_DETAILS = {
     variations: ['Diamond Push-Ups', 'Wide Push-Ups', 'Decline Push-Ups', 'Pike Push-Ups', 'Clap Push-Ups', 'Archer Push-Ups'],
     benefits: ['No equipment needed', 'Builds functional upper body strength', 'Engages core throughout', 'Dozens of variations for progression'],
     precautions: ['Keep hips level — don\'t sag or pike', 'Don\'t flare elbows out to 90 degrees', 'Full range of motion for best results'],
-    videos: [{ title: 'Perfect Push-Up Form', id: 'IODxDxX7oi4' }, { title: 'Push-Up Progression', id: '_A3-mVKGVzI' }]
+    videos: [{ title: 'Perfect Push-Up Form (Hindi)', id: '0tEVqwQmxPE' }, { title: 'Push-Up Progression (Hindi)', id: 't09H_B6hrm8' }]
   },
   'Burpees': {
     muscles: ['Full Body', 'Chest', 'Legs', 'Core', 'Shoulders'], calsBurn30min: 350,
@@ -3088,7 +3088,7 @@ const EXERCISE_DETAILS = {
     variations: ['Half Burpees (no push-up)', 'Burpee Box Jumps', 'Burpee Pull-Ups', 'Single-Leg Burpees'],
     benefits: ['Highest calorie burn per minute of any exercise', 'Full body conditioning', 'No equipment needed', 'Improves cardiovascular fitness rapidly'],
     precautions: ['Land softly to protect joints', 'Scale down if needed — skip the push-up', 'Maintain form even when tired'],
-    videos: [{ title: 'Burpee Form & Variations', id: 'TU8QYVW0gDU' }, { title: 'Burpee HIIT Workout', id: 'qLBImHhCXSw' }]
+    videos: [{ title: 'Burpee Form & Variations (Hindi)', id: 'mUYJqe_sJFE' }, { title: 'Burpee HIIT Workout (Hindi)', id: 'oOlRqK1WtK8' }]
   },
   'Mountain Climbers': {
     muscles: ['Core', 'Hip Flexors', 'Shoulders', 'Quadriceps'], calsBurn30min: 280,
@@ -3097,7 +3097,7 @@ const EXERCISE_DETAILS = {
     variations: ['Cross-Body Mountain Climbers', 'Slow Mountain Climbers', 'Sliding Mountain Climbers', 'Spiderman Mountain Climbers'],
     benefits: ['Excellent cardio in a small space', 'Builds core strength and stability', 'Improves hip mobility', 'No equipment needed'],
     precautions: ['Don\'t let your hips bounce up and down', 'Keep shoulders over wrists', 'Start slow and build speed'],
-    videos: [{ title: 'Mountain Climber Form', id: 'nmwgirgXLYM' }, { title: 'Core Cardio Workout', id: 'cnyGPwR4QaE' }]
+    videos: [{ title: 'Mountain Climber Form (Hindi)', id: 'Gmzk1WH6DfY' }, { title: 'Core Cardio Workout (Hindi)', id: '18QOLZT_CQg' }]
   },
   'Plank': {
     muscles: ['Core', 'Shoulders', 'Lower Back', 'Glutes'], calsBurn30min: 110,
@@ -3106,7 +3106,7 @@ const EXERCISE_DETAILS = {
     variations: ['Side Plank', 'Plank Up-Downs', 'Plank Shoulder Taps', 'Plank Jacks', 'Reverse Plank'],
     benefits: ['Builds isometric core strength', 'Improves posture and stability', 'No equipment needed', 'Can be done anywhere'],
     precautions: ['Don\'t let hips sag or pike up', 'Keep breathing — don\'t hold your breath', 'Start with shorter holds and progress'],
-    videos: [{ title: 'Perfect Plank Form', id: 'ASdvN_XEl_c' }, { title: 'Plank Variations', id: 'UIPe6EgKLpQ' }]
+    videos: [{ title: 'Perfect Plank Form (Hindi)', id: '8TRva9a95wU' }, { title: 'Plank Variations (Hindi)', id: 'DpfglPQFQ4E' }]
   },
   'Bodyweight Squats': {
     muscles: ['Quadriceps', 'Glutes', 'Hamstrings', 'Core'], calsBurn30min: 160,
@@ -3115,7 +3115,7 @@ const EXERCISE_DETAILS = {
     variations: ['Jump Squats', 'Sumo Squats', 'Pistol Squats', 'Pulse Squats', 'Wall Sit'],
     benefits: ['Foundation of all leg training', 'No equipment needed', 'Improves mobility and balance', 'Can be done anywhere'],
     precautions: ['Keep knees tracking over toes', 'Don\'t round your back', 'Ensure heels stay on the ground'],
-    videos: [{ title: 'Bodyweight Squat Tutorial', id: 'aclHkVaku9U' }, { title: 'Squat Mobility', id: 'Dy28eq2PjcM' }]
+    videos: [{ title: 'Bodyweight Squat Tutorial (Hindi)', id: 'Wldk4j5fP1M' }, { title: 'Squat Mobility (Hindi)', id: 'gzd9gcsr4Bs' }]
   },
   'Jumping Jacks': {
     muscles: ['Full Body', 'Calves', 'Shoulders', 'Core'], calsBurn30min: 250,
@@ -3124,7 +3124,7 @@ const EXERCISE_DETAILS = {
     variations: ['Star Jumps', 'Seal Jacks', 'Cross Jacks', 'Half Jacks'],
     benefits: ['Great warm-up and cardio exercise', 'Burns calories efficiently', 'Gets heart rate up quickly', 'No equipment needed'],
     precautions: ['Land softly on balls of feet', 'Avoid on hard surfaces if you have joint issues', 'Keep core engaged'],
-    videos: [{ title: 'Jumping Jack Variations', id: 'iSSAk4XCsRA' }, { title: 'Cardio Warm-Up Routine', id: '6rM7MrDbxbk' }]
+    videos: [{ title: 'Jumping Jack Variations (Hindi)', id: 'bT2iY8IjEU0' }, { title: 'Cardio Warm-Up Routine (Hindi)', id: 'uwzgs42jjC8' }]
   },
   'High Knees': {
     muscles: ['Hip Flexors', 'Quadriceps', 'Core', 'Calves'], calsBurn30min: 290,
@@ -3133,7 +3133,7 @@ const EXERCISE_DETAILS = {
     variations: ['Slow High Knees', 'High Knee Skips', 'In-Place Sprints', 'Seated High Knees'],
     benefits: ['Excellent cardio and coordination', 'Strengthens hip flexors', 'Burns calories rapidly', 'Improves running form'],
     precautions: ['Land softly', 'Keep core tight', 'Don\'t lean back'],
-    videos: [{ title: 'High Knees Technique', id: 'OAJ_J3EZkdY' }, { title: 'HIIT Cardio Moves', id: 'ml6cT4AZdqI' }]
+    videos: [{ title: 'High Knees Technique (Hindi)', id: '0X0Q8wKLEfo' }, { title: 'HIIT Cardio Moves (Hindi)', id: '18QOLZT_CQg' }]
   },
   'Tricep Dips (Bodyweight)': {
     muscles: ['Triceps', 'Chest', 'Front Deltoids'], calsBurn30min: 150,
@@ -3142,7 +3142,7 @@ const EXERCISE_DETAILS = {
     variations: ['Bent Knee Dips', 'Elevated Feet Dips', 'Weighted Bench Dips', 'Single-Leg Bench Dips'],
     benefits: ['No gym equipment needed — use a chair', 'Effective tricep isolation', 'Easy to modify difficulty'],
     precautions: ['Don\'t go too deep — protect your shoulders', 'Keep back close to the bench', 'Don\'t lock elbows at the top'],
-    videos: [{ title: 'Bench Dip Form', id: '6kALZikXxLc' }, { title: 'Home Tricep Exercises', id: 'vB5OHsJ3EME' }]
+    videos: [{ title: 'Bench Dip Form (Hindi)', id: 'aMa3CoK_kfc' }, { title: 'Home Tricep Exercises (Hindi)', id: '09QLzrM3xsM' }]
   }
 };
 
