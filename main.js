@@ -132,9 +132,15 @@ const WorkoutPlayer = {
           <span class="wp-bar-name">${this.getWorkout()}</span>
           <span class="wp-bar-time">${time}</span>
         </div>
+        <button class="wp-bar-stop" id="wp-stop-btn">Stop</button>
         <button class="wp-bar-resume" id="wp-resume">Resume</button>
       </div>`;
     document.getElementById('wp-resume')?.addEventListener('click', () => Router.navigate('active_workout'));
+    document.getElementById('wp-stop-btn')?.addEventListener('click', () => {
+      if (confirm('Stop workout? Your progress will be saved.')) {
+        WorkoutPlayer.stop();
+      }
+    });
   },
   removeBar() {
     document.getElementById('wp-bar')?.remove();
@@ -659,14 +665,8 @@ function startWaterReminder() {
 
     const remaining = ((waterGoal - water) / 1000).toFixed(1);
 
-    // Browser notification
-    if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification('💧 KINETIC — Hydration Reminder', {
-        body: `Time to drink water! ${remaining}L remaining to hit your daily goal.`,
-        icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💧</text></svg>',
-        tag: 'water-reminder',
-      });
-    }
+    // Alert popup
+    alert(`💧 Hydration Reminder\n\nTime to drink water! ${remaining}L remaining to hit your daily goal.`);
 
     // In-app notification
     addNotification('💧', 'Hydration Reminder', `Drink some water! ${remaining}L remaining today.`);
@@ -720,23 +720,13 @@ function requestNotifPermission() {
 }
 
 function sendGymNotification() {
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('🏋️ KINETIC — Gym Time!', {
-      body: 'Time to hit the gym! Your scheduled workout is starting now.',
-      icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">💪</text></svg>',
-    });
-  }
+  alert('🏋️ KINETIC — Gym Time!\n\nTime to hit the gym! Your scheduled workout is starting now.');
 }
 
 // Goal completion notification system
 function sendGoalNotification(title, body, emoji) {
-  // Browser notification
-  if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification(title, {
-      body: body,
-      icon: `data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">${emoji}</text></svg>`,
-    });
-  }
+  // Alert popup
+  alert(`${emoji} ${title}\n\n${body}`);
   // Store in notification drawer
   addNotification(emoji, title, body);
   // In-app toast notification
@@ -877,6 +867,36 @@ function renderDashboard() {
         <p class="body-md text-surface-variant">You're <span class="text-primary" style="font-weight:700">${stepsPercent}%</span> through your daily step goal. Keep the momentum.</p>
       </div>
 
+      <!-- BMI & Calorie Calculator -->
+      <div class="section-header"><h3 class="section-title">BMI & Calorie Calculator</h3></div>
+      <div class="bmi-card">
+        <div class="bmi-inputs">
+          <input type="number" id="bmi-weight" placeholder="Weight (kg)" value="72" min="20" max="300" step="0.1" maxlength="5" inputmode="decimal"/>
+          <input type="number" id="bmi-height" placeholder="Height (cm)" value="175" min="50" max="280" step="1" maxlength="5" inputmode="decimal"/>
+        </div>
+        <div class="bmi-inputs" style="margin-top:var(--spacing-3)">
+          <input type="number" id="bmi-age" placeholder="Age" value="25" min="5" max="120" step="1" maxlength="3" inputmode="numeric"/>
+          <select id="bmi-gender" style="flex:1;padding:var(--spacing-2) var(--spacing-3);border-radius:var(--radius-md);border:1px solid var(--surface-variant);background:var(--surface-container-high);color:var(--on-surface);font-size:0.875rem;font-family:var(--font-body)">
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
+        <button class="btn-primary" id="btn-calc-bmi" style="width:100%;padding:var(--spacing-2);margin-top:var(--spacing-3)">Calculate BMI & Calories</button>
+        <div class="bmi-result-box" id="bmi-result">
+          <div class="bmi-status" id="bmi-status-text">Normal</div>
+          <div class="bmi-value" id="bmi-value-text">23.5</div>
+          <div id="bmi-calorie-result" style="background:var(--surface-container);border-radius:var(--radius-lg);padding:var(--spacing-3);margin:var(--spacing-3) 0">
+            <div class="label-sm text-surface-variant" style="margin-bottom:4px">Recommended Daily Intake</div>
+            <div class="title-md text-primary" id="bmi-cal-value">2,400 kcal</div>
+            <div class="body-sm text-surface-variant" id="bmi-cal-breakdown">BMR: 1,700 • Activity: Moderate</div>
+          </div>
+          <p class="body-sm text-surface-variant" style="margin-bottom:var(--spacing-2)">Based on your BMI, KINETIC suggests:</p>
+          <button class="bmi-suggest-btn" id="bmi-suggest-btn" data-goal="lean_body">
+            Adopt <span id="bmi-suggest-name" style="font-weight:800;text-decoration:underline">Lean Body</span> Plan
+          </button>
+        </div>
+      </div>
+
       <!-- Gym Timer -->
       <div class="gym-timer-card">
         <div class="gym-timer-top">
@@ -926,8 +946,8 @@ function renderDashboard() {
           <div class="progress-ring-container" style="display:inline-block;margin-bottom:var(--spacing-3)">
             ${createSVGRing(200, 12, Math.min(100, stepsPercent), 'var(--primary)', 'var(--surface-container-high)')}
             <div class="ring-center-text" style="top:50%;left:50%;transform:translate(-50%,-50%)">
-              <span class="material-symbols-rounded" style="font-size:28px;color:var(--primary);display:block;margin-bottom:2px">directions_walk</span>
-              <div style="font-family:var(--font-display);font-size:3rem;font-weight:900;color:var(--primary);line-height:1" id="dash-step-count">${steps.toLocaleString()}</div>
+              <span class="material-symbols-rounded" style="font-size:24px;color:var(--primary);display:block;margin-bottom:2px">directions_walk</span>
+              <div style="font-family:var(--font-display);font-size:${steps >= 10000 ? '2rem' : '2.5rem'};font-weight:900;color:var(--primary);line-height:1" id="dash-step-count">${steps.toLocaleString()}</div>
               <div class="label-sm text-surface-variant" style="margin-top:4px;letter-spacing:1.5px">STEPS</div>
             </div>
           </div>
@@ -997,36 +1017,6 @@ function renderDashboard() {
         </div>
       </div>
 
-      <!-- BMI & Calorie Calculator -->
-      <div class="section-header"><h3 class="section-title">BMI & Calorie Calculator</h3></div>
-      <div class="bmi-card">
-        <div class="bmi-inputs">
-          <input type="number" id="bmi-weight" placeholder="Weight (kg)" value="72" min="20" max="300" step="0.1" maxlength="5" inputmode="decimal"/>
-          <input type="number" id="bmi-height" placeholder="Height (cm)" value="175" min="50" max="280" step="1" maxlength="5" inputmode="decimal"/>
-        </div>
-        <div class="bmi-inputs" style="margin-top:var(--spacing-3)">
-          <input type="number" id="bmi-age" placeholder="Age" value="25" min="5" max="120" step="1" maxlength="3" inputmode="numeric"/>
-          <select id="bmi-gender" style="flex:1;padding:var(--spacing-2) var(--spacing-3);border-radius:var(--radius-md);border:1px solid var(--surface-variant);background:var(--surface-container-high);color:var(--on-surface);font-size:0.875rem;font-family:var(--font-body)">
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-          </select>
-        </div>
-        <button class="btn-primary" id="btn-calc-bmi" style="width:100%;padding:var(--spacing-2);margin-top:var(--spacing-3)">Calculate BMI & Calories</button>
-        <div class="bmi-result-box" id="bmi-result">
-          <div class="bmi-status" id="bmi-status-text">Normal</div>
-          <div class="bmi-value" id="bmi-value-text">23.5</div>
-          <div id="bmi-calorie-result" style="background:var(--surface-container);border-radius:var(--radius-lg);padding:var(--spacing-3);margin:var(--spacing-3) 0">
-            <div class="label-sm text-surface-variant" style="margin-bottom:4px">Recommended Daily Intake</div>
-            <div class="title-md text-primary" id="bmi-cal-value">2,400 kcal</div>
-            <div class="body-sm text-surface-variant" id="bmi-cal-breakdown">BMR: 1,700 • Activity: Moderate</div>
-          </div>
-          <p class="body-sm text-surface-variant" style="margin-bottom:var(--spacing-2)">Based on your BMI, KINETIC suggests:</p>
-          <button class="bmi-suggest-btn" id="bmi-suggest-btn" data-goal="lean_body">
-            Adopt <span id="bmi-suggest-name" style="font-weight:800;text-decoration:underline">Lean Body</span> Plan
-          </button>
-        </div>
-      </div>
-
       <!-- Next Workout -->
       <div class="section-header">
         <h3 class="section-title">Today's Workout</h3>
@@ -1041,14 +1031,46 @@ function renderDashboard() {
         <span class="material-symbols-rounded plan-arrow">chevron_right</span>
       </div>
 
-      <!-- Heart Rate -->
-      <div class="surface-card" style="margin-bottom:var(--spacing-8)">
-        <div style="display:flex;align-items:center;gap:var(--spacing-3);margin-bottom:var(--spacing-3)">
-          <span class="material-symbols-rounded" style="color:var(--error);font-size:20px">favorite</span>
-          <span class="title-sm">Active Recovery</span>
-          <span class="label-sm text-surface-variant" style="margin-left:auto">Heart Rate</span>
+      <!-- Heart Rate Monitor -->
+      <div style="background:linear-gradient(135deg, var(--surface-container) 0%, var(--surface-container-high) 100%);border-radius:var(--radius-xl);padding:var(--spacing-6);margin-bottom:var(--spacing-6);border:1px solid rgba(64,72,93,0.12)">
+        <!-- Header + Toggle -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--spacing-4)">
+          <div style="display:flex;align-items:center;gap:var(--spacing-2)">
+            <span class="material-symbols-rounded" style="color:var(--error);font-size:22px">favorite</span>
+            <span class="title-md">Heart Rate</span>
+          </div>
+          <label class="pedometer-toggle">
+            <input type="checkbox" id="hr-toggle-switch" ${HeartRateMonitor.active ? 'checked' : ''} style="opacity:0;width:0;height:0">
+            <span class="pedometer-slider" style="width:52px;height:28px;border-radius:var(--radius-full);background:var(--surface-container-high);display:block;position:relative;cursor:pointer;transition:background var(--transition-fast)"></span>
+          </label>
         </div>
-        <div class="display-md text-primary">72 <span class="body-sm text-surface-variant">BPM</span></div>
+        <!-- BPM Display -->
+        <div style="text-align:center;margin-bottom:var(--spacing-4)">
+          <span class="material-symbols-rounded ${HeartRateMonitor.active ? 'hr-pulse' : ''}" id="hr-pulse-icon" style="font-size:36px;color:var(--error);display:block;margin-bottom:var(--spacing-1);${HeartRateMonitor.active ? 'animation-duration:' + (60 / HeartRateMonitor.getCurrentBPM()).toFixed(2) + 's' : ''}">favorite</span>
+          <div style="font-family:var(--font-display);font-size:4rem;font-weight:900;color:var(--error);line-height:1" id="hr-bpm-value">${HeartRateMonitor.getCurrentBPM()}</div>
+          <div class="label-sm text-surface-variant" style="margin-top:4px;letter-spacing:1.5px">BPM</div>
+          <span id="hr-zone-badge" style="display:inline-block;margin-top:var(--spacing-2);padding:4px 14px;border-radius:var(--radius-full);font-size:0.7rem;font-weight:700;${(() => { const z = HeartRateMonitor.getZone(HeartRateMonitor.getCurrentBPM()); return 'background:' + z.bg + ';color:' + z.color; })()}">${HeartRateMonitor.getZone(HeartRateMonitor.getCurrentBPM()).name}</span>
+        </div>
+        <!-- Sparkline -->
+        <div id="hr-sparkline" style="margin-bottom:var(--spacing-4)">${HeartRateMonitor._renderSparkline()}</div>
+        <!-- Stats Row -->
+        <div style="display:flex;justify-content:center;gap:var(--spacing-6)">
+          <div style="text-align:center">
+            <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:var(--on-surface)" id="hr-avg">${(() => { const h = Store.getData('hr_history', []); return h.length ? Math.round(h.reduce((a,b) => a+b, 0) / h.length) : '--'; })()}</div>
+            <div class="label-sm text-surface-variant">AVG</div>
+          </div>
+          <div style="width:1px;background:var(--surface-variant);align-self:stretch"></div>
+          <div style="text-align:center">
+            <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:var(--on-surface)" id="hr-min">${(() => { const h = Store.getData('hr_history', []); return h.length ? Math.min(...h) : '--'; })()}</div>
+            <div class="label-sm text-surface-variant">MIN</div>
+          </div>
+          <div style="width:1px;background:var(--surface-variant);align-self:stretch"></div>
+          <div style="text-align:center">
+            <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:var(--on-surface)" id="hr-max">${(() => { const h = Store.getData('hr_history', []); return h.length ? Math.max(...h) : '--'; })()}</div>
+            <div class="label-sm text-surface-variant">MAX</div>
+          </div>
+        </div>
+        ${!HeartRateMonitor.active ? '<div class="body-sm text-surface-variant" style="text-align:center;margin-top:var(--spacing-3)">Toggle on to start monitoring</div>' : ''}
       </div>
 
       <!-- Crew Feed -->
@@ -1164,6 +1186,17 @@ function renderDashboard() {
       }
     } else {
       Pedometer.stop();
+      renderDashboard();
+    }
+  });
+
+  // Heart rate monitor toggle
+  $('#hr-toggle-switch')?.addEventListener('change', (e) => {
+    if (e.target.checked) {
+      HeartRateMonitor.start();
+      renderDashboard();
+    } else {
+      HeartRateMonitor.stop();
       renderDashboard();
     }
   });
@@ -1452,6 +1485,36 @@ const FITNESS_GOALS = {
 function getSelectedGoal() { return Store.getData('fitness_goal', 'maintenance'); }
 function setSelectedGoal(g) { Store.setData('fitness_goal', g); }
 
+// Auto-apply workout schedule when goal changes
+function applyGoalSchedule(goalKey) {
+  const g = FITNESS_GOALS[goalKey];
+  if (!g || !g.schedule) return;
+  const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const typeMap = {
+    'Upper Body Power': { type: 'Chest, Shoulders, Triceps', duration: '55 min' },
+    'Lower Body Power': { type: 'Quads, Hamstrings, Glutes', duration: '50 min' },
+    'Upper Body Hypertrophy': { type: 'Back, Biceps, Rear Delts', duration: '50 min' },
+    'Lower Body Hypertrophy': { type: 'Legs & Calves', duration: '45 min' },
+    'Push Day': { type: 'Chest, Shoulders, Triceps', duration: '50 min' },
+    'Pull Day': { type: 'Back, Biceps, Rear Delts', duration: '50 min' },
+    'Leg Day': { type: 'Quads, Hamstrings, Glutes, Calves', duration: '55 min' },
+    'Full Body': { type: 'All Major Muscle Groups', duration: '60 min' },
+    'Cardio HIIT': { type: 'Interval Training', duration: '25 min' },
+    'Active Recovery': { type: 'Active Recovery / Stretching', duration: '20 min' },
+    'Yoga & Mobility': { type: 'Flexibility & Balance', duration: '30 min' },
+    'Core & Abs': { type: 'Core Stability & Abs', duration: '25 min' },
+    'Arms & Shoulders': { type: 'Biceps, Triceps, Delts', duration: '40 min' },
+    'Back & Biceps': { type: 'Pull Muscles', duration: '45 min' },
+    'Chest & Triceps': { type: 'Push Muscles', duration: '45 min' },
+    'Rest Day': { type: 'Full Rest', duration: '—' },
+  };
+  const newSched = g.schedule.map((workout, i) => {
+    const meta = typeMap[workout] || { type: workout, duration: '45 min' };
+    return { day: dayNames[i], workout, type: meta.type, duration: meta.duration };
+  });
+  setSchedule(newSched);
+}
+
 // --- Diet Preference ---
 function getDietPref() { return Store.getData('diet_pref', 'all'); }
 function setDietPref(p) { Store.setData('diet_pref', p); }
@@ -1733,10 +1796,6 @@ function renderDiet() {
         </div>
         <div class="sug-body">${goal.workoutTip}</div>
       </div>
-      <button class="btn-secondary" id="apply-goal-schedule" style="margin-bottom:var(--spacing-6)">
-        <span class="material-symbols-rounded">sync</span>
-        Apply ${goal.name} Schedule to Workouts
-      </button>
     </div>
     ${bottomNav('diet')}
   `;
@@ -1866,48 +1925,17 @@ function renderDiet() {
     });
   });
 
-  // Goal selection
+  // Goal selection — auto-applies workout schedule
   $$('.goal-card').forEach(card => {
     card.addEventListener('click', () => {
       const newGoal = card.dataset.goal;
       setSelectedGoal(newGoal);
+      applyGoalSchedule(newGoal);
+      showGoalToast(FITNESS_GOALS[newGoal].name, 'Goal & workout schedule updated', FITNESS_GOALS[newGoal].emoji);
       renderDiet();
     });
   });
 
-  // Apply schedule from goal
-  $('#apply-goal-schedule')?.addEventListener('click', () => {
-    const g = FITNESS_GOALS[goalKey];
-    const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-    const typeMap = {
-      'Upper Body Power': { type: 'Chest, Shoulders, Triceps', duration: '55 min' },
-      'Lower Body Power': { type: 'Quads, Hamstrings, Glutes', duration: '50 min' },
-      'Upper Body Hypertrophy': { type: 'Back, Biceps, Rear Delts', duration: '50 min' },
-      'Lower Body Hypertrophy': { type: 'Legs & Calves', duration: '45 min' },
-      'Push Day': { type: 'Chest, Shoulders, Triceps', duration: '50 min' },
-      'Pull Day': { type: 'Back, Biceps, Rear Delts', duration: '50 min' },
-      'Leg Day': { type: 'Quads, Hamstrings, Glutes, Calves', duration: '55 min' },
-      'Full Body': { type: 'All Major Muscle Groups', duration: '60 min' },
-      'Cardio HIIT': { type: 'Interval Training', duration: '25 min' },
-      'Active Recovery': { type: 'Active Recovery / Stretching', duration: '20 min' },
-      'Yoga & Mobility': { type: 'Flexibility & Balance', duration: '30 min' },
-      'Core & Abs': { type: 'Core Stability & Abs', duration: '25 min' },
-      'Arms & Shoulders': { type: 'Biceps, Triceps, Delts', duration: '40 min' },
-      'Back & Biceps': { type: 'Pull Muscles', duration: '45 min' },
-      'Chest & Triceps': { type: 'Push Muscles', duration: '45 min' },
-      'Rest Day': { type: 'Full Rest', duration: '—' },
-    };
-    const newSched = g.schedule.map((workout, i) => {
-      const meta = typeMap[workout] || { type: workout, duration: '45 min' };
-      return { day: dayNames[i], workout, type: meta.type, duration: meta.duration };
-    });
-    setSchedule(newSched);
-    // Visual feedback
-    const btn = $('#apply-goal-schedule');
-    btn.innerHTML = '<span class="material-symbols-rounded">check_circle</span> Schedule Applied!';
-    btn.style.color = 'var(--primary)';
-    setTimeout(() => renderDiet(), 1500);
-  });
 }
 
 // --- Add Meal Modal ---
@@ -3232,6 +3260,11 @@ function renderActiveWorkout() {
     WorkoutPlayer.stop();
     const elapsed = Date.now() - workoutStartTime;
     const mins = Math.floor(elapsed / 60000);
+    // Log workout to history
+    const wHist = Store.getData('workout_history', []);
+    wHist.push({ date: Date.now(), name: daySchedule.workout, duration: mins, sets: completedSets, totalSets });
+    if (wHist.length > 60) wHist.shift();
+    Store.setData('workout_history', wHist);
     showGoalToast('Workout Complete!', `${daySchedule.workout} finished in ${mins} min. ${completedSets}/${totalSets} sets completed!`, '🏆');
     // Navigate back
     setTimeout(() => {
@@ -3602,6 +3635,111 @@ const Pedometer = {
 Pedometer.resume();
 
 // ============================================
+// HEART RATE MONITOR — Simulated live HR
+// ============================================
+const HeartRateMonitor = {
+  active: false,
+  _interval: null,
+  _baseBPM: 72,
+  _drift: 0,
+
+  start() {
+    if (this.active) return;
+    this.active = true;
+    this._baseBPM = 68 + Math.random() * 7; // base resting 68-75
+    this._drift = 0;
+    Store.setData('hr_active', true);
+    this._tick();
+    this._interval = setInterval(() => this._tick(), 2000);
+  },
+
+  stop() {
+    if (!this.active) return;
+    this.active = false;
+    Store.setData('hr_active', false);
+    if (this._interval) { clearInterval(this._interval); this._interval = null; }
+  },
+
+  _tick() {
+    // Smoothed random walk for natural fluctuation
+    this._drift += (Math.random() - 0.5) * 2;
+    this._drift = Math.max(-6, Math.min(6, this._drift)) * 0.9;
+    const bpm = Math.round(this._baseBPM + this._drift);
+    const clamped = Math.max(55, Math.min(110, bpm));
+    Store.setData('hr_current', clamped);
+
+    // Store history (keep last 20)
+    const hist = Store.getData('hr_history', []);
+    hist.push(clamped);
+    if (hist.length > 20) hist.shift();
+    Store.setData('hr_history', hist);
+
+    // Live UI update
+    const bpmEl = document.getElementById('hr-bpm-value');
+    if (bpmEl) bpmEl.textContent = clamped;
+    const zoneEl = document.getElementById('hr-zone-badge');
+    if (zoneEl) {
+      const z = this.getZone(clamped);
+      zoneEl.textContent = z.name;
+      zoneEl.style.background = z.bg;
+      zoneEl.style.color = z.color;
+    }
+    // Update sparkline
+    const sparkEl = document.getElementById('hr-sparkline');
+    if (sparkEl) sparkEl.innerHTML = this._renderSparkline();
+    // Update stats
+    const avgEl = document.getElementById('hr-avg');
+    const minEl = document.getElementById('hr-min');
+    const maxEl = document.getElementById('hr-max');
+    if (avgEl && hist.length > 0) avgEl.textContent = Math.round(hist.reduce((a, b) => a + b, 0) / hist.length);
+    if (minEl && hist.length > 0) minEl.textContent = Math.min(...hist);
+    if (maxEl && hist.length > 0) maxEl.textContent = Math.max(...hist);
+    // Update pulse animation speed
+    const pulseEl = document.getElementById('hr-pulse-icon');
+    if (pulseEl) pulseEl.style.animationDuration = (60 / clamped).toFixed(2) + 's';
+  },
+
+  getZone(bpm) {
+    if (bpm < 60) return { name: 'Low', bg: 'rgba(97,194,255,0.15)', color: 'var(--tertiary)' };
+    if (bpm < 80) return { name: 'Resting', bg: 'rgba(76,175,80,0.15)', color: '#4caf50' };
+    if (bpm < 100) return { name: 'Fat Burn', bg: 'rgba(255,183,77,0.15)', color: '#ffb74d' };
+    if (bpm < 140) return { name: 'Cardio', bg: 'rgba(255,107,107,0.15)', color: 'var(--error)' };
+    return { name: 'Peak', bg: 'rgba(213,0,0,0.2)', color: '#d50000' };
+  },
+
+  getCurrentBPM() {
+    return Store.getData('hr_current', 72);
+  },
+
+  _renderSparkline() {
+    const hist = Store.getData('hr_history', []);
+    if (hist.length < 2) return '';
+    const min = Math.min(...hist) - 2;
+    const max = Math.max(...hist) + 2;
+    const range = max - min || 1;
+    const w = 200, h = 40;
+    const points = hist.map((v, i) => {
+      const x = (i / (hist.length - 1)) * w;
+      const y = h - ((v - min) / range) * h;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(' ');
+    return `<svg width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" style="display:block;width:100%;height:${h}px">
+      <polyline points="${points}" fill="none" stroke="var(--error)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+      <circle cx="${(w).toFixed(1)}" cy="${(h - ((hist[hist.length-1] - min) / range) * h).toFixed(1)}" r="3" fill="var(--error)"/>
+    </svg>`;
+  },
+
+  resume() {
+    if (Store.getData('hr_active', false)) {
+      this.start();
+    }
+  }
+};
+
+// Auto-resume heart rate monitor on load
+HeartRateMonitor.resume();
+
+// ============================================
 // PAGE: Step Tracking
 // ============================================
 function renderSteps() {
@@ -3946,6 +4084,23 @@ function renderWater() {
 }
 
 // ============================================
+// Weekly weight reminder
+// ============================================
+let weightReminderInterval = null;
+function startWeightReminder() {
+  if (weightReminderInterval) clearInterval(weightReminderInterval);
+  // Check every hour if it's been 7+ days
+  weightReminderInterval = setInterval(() => {
+    const last = Store.getData('last_weigh_date', 0);
+    if (Date.now() - last > 7 * 24 * 60 * 60 * 1000) {
+      alert('⚖️ Weekly Weigh-In Reminder\n\nIt\'s been a week since your last weigh-in. Head to Health Trends to log your weight!');
+      addNotification('⚖️', 'Weekly Weigh-In', 'Time to log your weight in Health Trends.');
+    }
+  }, 60 * 60 * 1000); // check every hour
+}
+startWeightReminder();
+
+// ============================================
 // PAGE: Health Trends
 // ============================================
 function renderTrends() {
@@ -3958,9 +4113,14 @@ function renderTrends() {
   for (const key in trendMeals) { todayCals += calcMealTotals(trendMeals[key]).cal; }
 
   const weightData = Store.getData('weight_history', []);
+  const weightDates = Store.getData('weight_dates', []);
+  const goalWeight = Store.getData('goal_weight', 0);
   const sleepData = Store.getData('sleep_history', []);
   const calHistory = Store.getData('cal_history', []);
   const calData = calHistory.length > 0 ? [...calHistory, todayCals || calHistory[calHistory.length - 1]] : (todayCals > 0 ? [todayCals] : []);
+  const workoutHist = Store.getData('workout_history', []);
+  const stepsWeek = Store.getData('steps_week', [0, 0, 0, 0, 0, 0, 0]);
+  const waterWeek = Store.getData('water_week', [0, 0, 0, 0, 0, 0, 0]);
 
   // Computed metrics from actual data
   const weightChange = weightData.length >= 2 ? (weightData[weightData.length - 1] - weightData[0]).toFixed(1) : '0.0';
@@ -3978,6 +4138,30 @@ function renderTrends() {
   const cAcc = goal.c > 0 ? Math.min(100, Math.round((trendAllTotals.c / goal.c) * 100)) : 0;
   const fAcc = goal.f > 0 ? Math.min(100, Math.round((trendAllTotals.f / goal.f) * 100)) : 0;
   const macroAccuracy = Math.round((pAcc + cAcc + fAcc) / 3);
+
+  // Workout stats
+  const totalWorkouts = workoutHist.length;
+  const thisWeekWorkouts = workoutHist.filter(w => Date.now() - w.date < 7 * 24 * 60 * 60 * 1000).length;
+  const totalWorkoutMins = workoutHist.reduce((a, w) => a + (w.duration || 0), 0);
+  const avgWorkoutMins = totalWorkouts > 0 ? Math.round(totalWorkoutMins / totalWorkouts) : 0;
+
+  // Steps this week
+  const totalStepsWeek = stepsWeek.reduce((a, b) => a + b, 0);
+  const avgStepsDay = Math.round(totalStepsWeek / 7);
+  const stepsToday = Store.getData('steps_today', 0);
+
+  // Water this week
+  const totalWaterWeek = waterWeek.reduce((a, b) => a + b, 0);
+  const avgWaterDay = Math.round(totalWaterWeek / 7);
+
+  // Weight goal progress
+  const currentWeight = weightData.length > 0 ? weightData[weightData.length - 1] : 0;
+  const weightToGo = goalWeight > 0 && currentWeight > 0 ? (goalWeight - currentWeight).toFixed(1) : null;
+  const weightGoalPct = goalWeight > 0 && weightData.length >= 2 ? Math.min(100, Math.max(0, Math.round(Math.abs(weightData[0] - currentWeight) / Math.abs(weightData[0] - goalWeight) * 100))) : 0;
+
+  // Last weigh-in info
+  const lastWeighDate = Store.getData('last_weigh_date', 0);
+  const daysSinceWeigh = lastWeighDate > 0 ? Math.floor((Date.now() - lastWeighDate) / (24 * 60 * 60 * 1000)) : null;
 
   function sparklinePath(data, width, height, pad = 4) {
     const minV = Math.min(...data);
@@ -4105,55 +4289,193 @@ function renderTrends() {
       <h1 class="headline-lg" style="margin-bottom:var(--spacing-1)">Health Trends</h1>
       <p class="body-md text-surface-variant" style="margin-bottom:var(--spacing-6)">Your progress over time</p>
 
-      <!-- Goal Progress -->
-      <div class="surface-card" style="margin-bottom:var(--spacing-6);border:1px solid var(--primary)">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:var(--spacing-3)">
-          <div>
-            <div class="title-sm text-primary">Current Goal: ${goal.name}</div>
+      <!-- Goal Progress Hero -->
+      <div style="background:linear-gradient(135deg, var(--surface-container) 0%, var(--surface-container-high) 100%);border-radius:var(--radius-xl);padding:var(--spacing-5);margin-bottom:var(--spacing-6);border:1px solid rgba(107,255,143,0.2)">
+        <div style="display:flex;align-items:center;gap:var(--spacing-3);margin-bottom:var(--spacing-4)">
+          <div style="width:44px;height:44px;border-radius:var(--radius-lg);background:rgba(107,255,143,0.12);display:flex;align-items:center;justify-content:center">
+            <span style="font-size:1.5rem">${goal.emoji}</span>
+          </div>
+          <div style="flex:1">
+            <div class="title-md text-primary">${goal.name}</div>
             <div class="body-sm text-surface-variant">${goal.desc}</div>
           </div>
-          <span class="material-symbols-rounded text-primary">target</span>
+          <span class="material-symbols-rounded text-primary" style="font-size:28px">emoji_events</span>
         </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-3)">
-          <div style="background:var(--surface-container);padding:var(--spacing-3);border-radius:var(--radius-lg)">
-            <div class="label-sm text-surface-variant">Daily Calorie Target</div>
-            <div class="title-md">${goal.cal} kcal</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--spacing-3)">
+          <div style="background:var(--surface-container);padding:var(--spacing-3);border-radius:var(--radius-lg);text-align:center">
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--primary);display:block;margin-bottom:2px">local_fire_department</span>
+            <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--on-surface)">${goal.cal}</div>
+            <div class="label-sm text-surface-variant">KCAL/DAY</div>
           </div>
-          <div style="background:var(--surface-container);padding:var(--spacing-3);border-radius:var(--radius-lg)">
-            <div class="label-sm text-surface-variant">Macro Focus</div>
-            <div class="title-md" style="font-size:1.1rem">P:${goal.p}g C:${goal.c}g F:${goal.f}g</div>
+          <div style="background:var(--surface-container);padding:var(--spacing-3);border-radius:var(--radius-lg);text-align:center">
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--tertiary);display:block;margin-bottom:2px">egg_alt</span>
+            <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--on-surface)">${goal.p}g</div>
+            <div class="label-sm text-surface-variant">PROTEIN</div>
+          </div>
+          <div style="background:var(--surface-container);padding:var(--spacing-3);border-radius:var(--radius-lg);text-align:center">
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--secondary);display:block;margin-bottom:2px">grain</span>
+            <div style="font-family:var(--font-display);font-size:1.2rem;font-weight:800;color:var(--on-surface)">${goal.c}g</div>
+            <div class="label-sm text-surface-variant">CARBS</div>
           </div>
         </div>
       </div>
 
-      <!-- Weight Trend -->
-      <div class="trend-chart-container">
-        <div class="trend-chart-header">
-          <div>
-            <div class="title-md">Body Weight</div>
-            <div class="body-sm text-surface-variant">Monthly progress</div>
+      <!-- Weight Log & Goal -->
+      <div style="background:linear-gradient(135deg, var(--surface-container) 0%, var(--surface-container-high) 100%);border-radius:var(--radius-xl);padding:var(--spacing-5);margin-bottom:var(--spacing-6);border:1px solid rgba(64,72,93,0.12)">
+        <div style="display:flex;align-items:center;gap:var(--spacing-2);margin-bottom:var(--spacing-4)">
+          <span class="material-symbols-rounded" style="font-size:22px;color:var(--primary)">monitor_weight</span>
+          <span class="title-md">Weight Tracker</span>
+          ${daysSinceWeigh !== null ? `<span class="body-sm text-surface-variant" style="margin-left:auto">${daysSinceWeigh === 0 ? 'Logged today' : daysSinceWeigh + 'd ago'}</span>` : ''}
+        </div>
+        <!-- Current & Goal -->
+        <div style="display:flex;gap:var(--spacing-3);margin-bottom:var(--spacing-4)">
+          <div style="flex:1;background:var(--surface-container);border-radius:var(--radius-lg);padding:var(--spacing-3);text-align:center">
+            <div class="label-sm text-surface-variant" style="margin-bottom:4px">CURRENT</div>
+            <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:900;color:var(--on-surface)">${currentWeight > 0 ? currentWeight : '--'}</div>
+            <div class="body-sm text-surface-variant">kg</div>
           </div>
-          <div class="trend-mini-stat">
-            <div class="value">${weightChange > 0 ? '+' : ''}${weightChange} kg</div>
-            <div class="label">This month</div>
+          <div style="display:flex;align-items:center">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--surface-variant)">arrow_forward</span>
+          </div>
+          <div style="flex:1;background:var(--surface-container);border-radius:var(--radius-lg);padding:var(--spacing-3);text-align:center">
+            <div class="label-sm text-surface-variant" style="margin-bottom:4px">GOAL</div>
+            <div style="font-family:var(--font-display);font-size:1.8rem;font-weight:900;color:var(--primary)">${goalWeight > 0 ? goalWeight : '--'}</div>
+            <div class="body-sm text-surface-variant">kg</div>
           </div>
         </div>
-        <svg class="sparkline-svg" viewBox="0 0 320 80">
-          <defs><linearGradient id="sparkGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.3"/>
-            <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/>
-          </linearGradient></defs>
-          <path class="area" d="${sparklineArea(weightData, 320, 80)}"/>
-          <path class="line" d="${sparklinePath(weightData, 320, 80)}"/>
-        </svg>
+        ${goalWeight > 0 && currentWeight > 0 ? `
+        <!-- Goal progress bar -->
+        <div style="margin-bottom:var(--spacing-3)">
+          <div style="display:flex;justify-content:space-between;margin-bottom:4px">
+            <span class="body-sm text-surface-variant">${weightGoalPct}% to goal</span>
+            <span class="body-sm" style="color:var(--primary);font-weight:700">${weightToGo > 0 ? '+' : ''}${weightToGo} kg to go</span>
+          </div>
+          <div style="height:8px;background:var(--surface-container-high);border-radius:var(--radius-full);overflow:hidden">
+            <div style="height:100%;width:${Math.min(100, weightGoalPct)}%;background:linear-gradient(90deg,var(--primary),var(--primary-container));border-radius:var(--radius-full);transition:width 0.5s ease"></div>
+          </div>
+        </div>
+        ` : ''}
+        <!-- Input Row -->
+        <div style="display:flex;gap:var(--spacing-2)">
+          <input type="number" id="trend-weight-input" placeholder="Weight (kg)" step="0.1" min="20" max="300" inputmode="decimal" style="flex:1;padding:var(--spacing-2) var(--spacing-3);border-radius:var(--radius-lg);border:1px solid var(--surface-variant);background:var(--surface-container-high);color:var(--on-surface);font-size:0.9rem;font-family:var(--font-body)" value="${currentWeight > 0 ? currentWeight : ''}"/>
+          <button class="btn-primary" id="trend-log-weight" style="padding:var(--spacing-2) var(--spacing-4);white-space:nowrap">
+            <span class="material-symbols-rounded" style="font-size:16px">add</span> Log
+          </button>
+        </div>
+        <div style="display:flex;gap:var(--spacing-2);margin-top:var(--spacing-2)">
+          <input type="number" id="trend-goal-weight" placeholder="Goal weight (kg)" step="0.1" min="20" max="300" inputmode="decimal" style="flex:1;padding:var(--spacing-2) var(--spacing-3);border-radius:var(--radius-lg);border:1px solid var(--surface-variant);background:var(--surface-container-high);color:var(--on-surface);font-size:0.9rem;font-family:var(--font-body)" value="${goalWeight > 0 ? goalWeight : ''}"/>
+          <button class="btn-secondary" id="trend-set-goal-weight" style="padding:var(--spacing-2) var(--spacing-4);white-space:nowrap">
+            <span class="material-symbols-rounded" style="font-size:16px">flag</span> Set Goal
+          </button>
+        </div>
+        <!-- Weight sparkline -->
+        ${weightData.length >= 2 ? `
+        <div style="margin-top:var(--spacing-4)">
+          <svg class="sparkline-svg" viewBox="0 0 320 80">
+            <defs><linearGradient id="sparkGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--primary)" stop-opacity="0.3"/>
+              <stop offset="100%" stop-color="var(--primary)" stop-opacity="0"/>
+            </linearGradient></defs>
+            <path class="area" d="${sparklineArea(weightData, 320, 80)}"/>
+            <path class="line" d="${sparklinePath(weightData, 320, 80)}"/>
+            ${goalWeight > 0 ? `<line x1="0" y1="${80 - 4 - ((goalWeight - Math.min(...weightData) + 2) / ((Math.max(...weightData) + 2) - (Math.min(...weightData) - 2) || 1)) * 72}" x2="320" y2="${80 - 4 - ((goalWeight - Math.min(...weightData) + 2) / ((Math.max(...weightData) + 2) - (Math.min(...weightData) - 2) || 1)) * 72}" stroke="var(--primary)" stroke-width="1" stroke-dasharray="6,4" opacity="0.5"/>` : ''}
+          </svg>
+          <div style="display:flex;justify-content:space-between">
+            <span class="label-sm text-surface-variant">${weightData.length} entries</span>
+            <span class="label-sm" style="color:var(--primary)">${weightChange > 0 ? '+' : ''}${weightChange} kg total</span>
+          </div>
+        </div>
+        ` : '<div class="body-sm text-surface-variant" style="text-align:center;margin-top:var(--spacing-3)">Log your weight to see the trend chart</div>'}
       </div>
 
-      <!-- Sleep -->
+      <!-- Weekly Overview Cards -->
+      <div class="section-header"><h3 class="section-title">This Week</h3></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--spacing-3);margin-bottom:var(--spacing-6)">
+        <!-- Workouts -->
+        <div style="background:var(--surface-container);border-radius:var(--radius-xl);padding:var(--spacing-4)">
+          <div style="display:flex;align-items:center;gap:var(--spacing-2);margin-bottom:var(--spacing-3)">
+            <div style="width:32px;height:32px;border-radius:var(--radius-full);background:rgba(107,255,143,0.1);display:flex;align-items:center;justify-content:center">
+              <span class="material-symbols-rounded" style="font-size:16px;color:var(--primary)">fitness_center</span>
+            </div>
+            <span class="title-sm">Workouts</span>
+          </div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--on-surface);line-height:1">${thisWeekWorkouts}</div>
+          <div class="body-sm text-surface-variant">sessions this week</div>
+          <div style="margin-top:var(--spacing-2);font-family:var(--font-display);font-size:0.85rem;font-weight:700;color:var(--primary)">${avgWorkoutMins} min avg</div>
+        </div>
+        <!-- Steps -->
+        <div style="background:var(--surface-container);border-radius:var(--radius-xl);padding:var(--spacing-4)">
+          <div style="display:flex;align-items:center;gap:var(--spacing-2);margin-bottom:var(--spacing-3)">
+            <div style="width:32px;height:32px;border-radius:var(--radius-full);background:rgba(107,255,143,0.1);display:flex;align-items:center;justify-content:center">
+              <span class="material-symbols-rounded" style="font-size:16px;color:var(--primary)">directions_walk</span>
+            </div>
+            <span class="title-sm">Steps</span>
+          </div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--on-surface);line-height:1">${stepsToday.toLocaleString()}</div>
+          <div class="body-sm text-surface-variant">today</div>
+          <div style="margin-top:var(--spacing-2);font-family:var(--font-display);font-size:0.85rem;font-weight:700;color:var(--primary)">${avgStepsDay.toLocaleString()} avg/day</div>
+        </div>
+        <!-- Calories -->
+        <div style="background:var(--surface-container);border-radius:var(--radius-xl);padding:var(--spacing-4)">
+          <div style="display:flex;align-items:center;gap:var(--spacing-2);margin-bottom:var(--spacing-3)">
+            <div style="width:32px;height:32px;border-radius:var(--radius-full);background:rgba(255,183,77,0.1);display:flex;align-items:center;justify-content:center">
+              <span class="material-symbols-rounded" style="font-size:16px;color:var(--secondary)">local_fire_department</span>
+            </div>
+            <span class="title-sm">Calories</span>
+          </div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--on-surface);line-height:1">${todayCals.toLocaleString()}</div>
+          <div class="body-sm text-surface-variant">kcal today</div>
+          <div style="margin-top:var(--spacing-2);font-family:var(--font-display);font-size:0.85rem;font-weight:700;color:var(--secondary)">${avgCals.toLocaleString()} avg</div>
+        </div>
+        <!-- Water -->
+        <div style="background:var(--surface-container);border-radius:var(--radius-xl);padding:var(--spacing-4)">
+          <div style="display:flex;align-items:center;gap:var(--spacing-2);margin-bottom:var(--spacing-3)">
+            <div style="width:32px;height:32px;border-radius:var(--radius-full);background:rgba(97,194,255,0.1);display:flex;align-items:center;justify-content:center">
+              <span class="material-symbols-rounded" style="font-size:16px;color:var(--tertiary)">water_drop</span>
+            </div>
+            <span class="title-sm">Water</span>
+          </div>
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:900;color:var(--on-surface);line-height:1">${(Store.getData('water_today', 0) / 1000).toFixed(1)}L</div>
+          <div class="body-sm text-surface-variant">today</div>
+          <div style="margin-top:var(--spacing-2);font-family:var(--font-display);font-size:0.85rem;font-weight:700;color:var(--tertiary)">${(avgWaterDay / 1000).toFixed(1)}L avg</div>
+        </div>
+      </div>
+
+      <!-- Key Metrics -->
+      <div class="section-header"><h3 class="section-title">Key Metrics</h3></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--spacing-3);margin-bottom:var(--spacing-6)">
+        <div style="background:var(--surface-container);border-radius:var(--radius-xl);padding:var(--spacing-4);text-align:center">
+          <div style="width:36px;height:36px;border-radius:var(--radius-full);background:rgba(107,255,143,0.1);display:inline-flex;align-items:center;justify-content:center;margin-bottom:var(--spacing-2)">
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--primary)">trending_${parseFloat(weeklyWeightChange) >= 0 ? 'up' : 'down'}</span>
+          </div>
+          <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:var(--on-surface)">${weeklyWeightChange > 0 ? '+' : ''}${weeklyWeightChange}</div>
+          <div class="label-sm text-surface-variant" style="margin-top:2px">KG/WEEK</div>
+        </div>
+        <div style="background:var(--surface-container);border-radius:var(--radius-xl);padding:var(--spacing-4);text-align:center">
+          <div style="width:36px;height:36px;border-radius:var(--radius-full);background:rgba(97,194,255,0.1);display:inline-flex;align-items:center;justify-content:center;margin-bottom:var(--spacing-2)">
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--tertiary)">target</span>
+          </div>
+          <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:var(--tertiary)">${macroAccuracy}%</div>
+          <div class="label-sm text-surface-variant" style="margin-top:2px">MACRO HIT</div>
+        </div>
+        <div style="background:var(--surface-container);border-radius:var(--radius-xl);padding:var(--spacing-4);text-align:center">
+          <div style="width:36px;height:36px;border-radius:var(--radius-full);background:rgba(255,183,77,0.1);display:inline-flex;align-items:center;justify-content:center;margin-bottom:var(--spacing-2)">
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--secondary)">restaurant</span>
+          </div>
+          <div style="font-family:var(--font-display);font-size:1.3rem;font-weight:800;color:var(--secondary)">${avgCals.toLocaleString()}</div>
+          <div class="label-sm text-surface-variant" style="margin-top:2px">KCAL/DAY</div>
+        </div>
+      </div>
+
+      <!-- Sleep Trend -->
       <div class="trend-chart-container">
         <div class="trend-chart-header">
-          <div>
-            <div class="title-md">Sleep Quality</div>
-            <div class="body-sm text-surface-variant">Optimal Recovery State</div>
+          <div style="display:flex;align-items:center;gap:var(--spacing-2)">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--tertiary)">bedtime</span>
+            <div>
+              <div class="title-md">Sleep Quality</div>
+              <div class="body-sm text-surface-variant">Recovery & rest</div>
+            </div>
           </div>
           <div class="trend-mini-stat">
             <div class="value" style="color:var(--tertiary)">${avgSleep}h</div>
@@ -4168,20 +4490,31 @@ function renderTrends() {
           <path class="area" d="${sparklineArea(sleepData, 320, 80)}" style="fill:url(#sleepGrad)"/>
           <path class="line" d="${sparklinePath(sleepData, 320, 80)}" style="stroke:var(--tertiary)"/>
         </svg>
+        <!-- Log sleep -->
+        <div style="display:flex;gap:var(--spacing-2);margin-top:var(--spacing-3)">
+          <input type="number" id="trend-sleep-input" placeholder="Hours slept" step="0.5" min="0" max="24" inputmode="decimal" style="flex:1;padding:var(--spacing-2) var(--spacing-3);border-radius:var(--radius-lg);border:1px solid var(--surface-variant);background:var(--surface-container-high);color:var(--on-surface);font-size:0.9rem;font-family:var(--font-body)"/>
+          <button class="btn-primary" id="trend-log-sleep" style="padding:var(--spacing-2) var(--spacing-4);white-space:nowrap">
+            <span class="material-symbols-rounded" style="font-size:16px">add</span> Log
+          </button>
+        </div>
       </div>
 
-      <!-- Calories -->
+      <!-- Calorie Trend -->
       <div class="trend-chart-container">
         <div class="trend-chart-header">
-          <div>
-            <div class="title-md">Calorie Intake</div>
-            <div class="body-sm text-surface-variant">Daily intake tracking</div>
+          <div style="display:flex;align-items:center;gap:var(--spacing-2)">
+            <span class="material-symbols-rounded" style="font-size:20px;color:var(--secondary)">local_fire_department</span>
+            <div>
+              <div class="title-md">Calorie Intake</div>
+              <div class="body-sm text-surface-variant">Daily fuel tracking</div>
+            </div>
           </div>
           <div class="trend-mini-stat">
-            <div class="value" style="color:var(--secondary)">${Math.round(calData.reduce((a,b) => a+b, 0) / calData.length).toLocaleString()}</div>
+            <div class="value" style="color:var(--secondary)">${calData.length > 0 ? Math.round(calData.reduce((a,b) => a+b, 0) / calData.length).toLocaleString() : '0'}</div>
             <div class="label">Average</div>
           </div>
         </div>
+        ${calData.length >= 2 ? `
         <svg class="sparkline-svg" viewBox="0 0 320 80">
           <defs><linearGradient id="calGrad" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stop-color="var(--secondary)" stop-opacity="0.3"/>
@@ -4190,34 +4523,94 @@ function renderTrends() {
           <path class="area" d="${sparklineArea(calData, 320, 80)}" style="fill:url(#calGrad)"/>
           <path class="line" d="${sparklinePath(calData, 320, 80)}" style="stroke:var(--secondary)"/>
         </svg>
+        ` : '<div class="body-sm text-surface-variant" style="text-align:center;padding:var(--spacing-4)">Track meals in the Diet tab to see calorie trends</div>'}
+      </div>
+
+      <!-- Workout History -->
+      ${workoutHist.length > 0 ? `
+      <div class="section-header"><h3 class="section-title">Recent Workouts</h3></div>
+      <div style="margin-bottom:var(--spacing-6)">
+        ${workoutHist.slice(-5).reverse().map(w => `
+        <div style="display:flex;align-items:center;gap:var(--spacing-3);padding:var(--spacing-3);background:var(--surface-container);border-radius:var(--radius-lg);margin-bottom:var(--spacing-2)">
+          <div style="width:36px;height:36px;border-radius:var(--radius-full);background:rgba(107,255,143,0.1);display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <span class="material-symbols-rounded" style="font-size:18px;color:var(--primary)">fitness_center</span>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div class="title-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${w.name}</div>
+            <div class="body-sm text-surface-variant">${new Date(w.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' })}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div class="title-sm text-primary">${w.duration} min</div>
+            <div class="body-sm text-surface-variant">${w.sets}/${w.totalSets} sets</div>
+          </div>
+        </div>
+        `).join('')}
+      </div>
+      ` : ''}
+
+      <!-- Steps Weekly Bar Chart -->
+      <div class="section-header"><h3 class="section-title">Steps This Week</h3></div>
+      <div style="background:var(--surface-container);border-radius:var(--radius-xl);padding:var(--spacing-4);margin-bottom:var(--spacing-6)">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;height:100px;gap:var(--spacing-1)">
+          ${['M','T','W','T','F','S','S'].map((d, i) => {
+            const val = stepsWeek[i] || 0;
+            const maxS = Math.max(...stepsWeek, 1);
+            const hPct = Math.max(4, (val / maxS) * 100);
+            const todayIdx = (new Date().getDay() + 6) % 7;
+            const isToday = i === todayIdx;
+            return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+              <div class="label-sm" style="color:${isToday ? 'var(--primary)' : 'var(--on-surface-variant)'};font-size:0.55rem">${val > 999 ? (val / 1000).toFixed(1) + 'k' : val}</div>
+              <div style="width:100%;max-width:28px;height:${hPct}%;background:${isToday ? 'linear-gradient(180deg,var(--primary),var(--primary-container))' : 'var(--surface-container-high)'};border-radius:var(--radius-md);min-height:4px;transition:height 0.5s ease"></div>
+              <div class="label-sm" style="color:${isToday ? 'var(--primary)' : 'var(--on-surface-variant)'};font-weight:${isToday ? '800' : '600'}">${d}</div>
+            </div>`;
+          }).join('')}
+        </div>
       </div>
 
       <!-- Smart Diet Suggestions Based on Calorie Status -->
       ${trendInsightHTML}
-
-      <!-- Summary Stats -->
-      <div class="section-header"><h3 class="section-title">Key Metrics</h3></div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:var(--spacing-3);margin-bottom:var(--spacing-6)">
-        <div class="stat-card" style="text-align:center">
-          <span class="stat-label" style="font-size:0.6rem">Weight Trend</span>
-          <div class="stat-value" style="font-size:1.25rem">${weeklyWeightChange > 0 ? '+' : ''}${weeklyWeightChange}</div>
-          <span class="body-sm text-surface-variant">kg/week</span>
-        </div>
-        <div class="stat-card" style="text-align:center">
-          <span class="stat-label" style="font-size:0.6rem">Macro Accuracy</span>
-          <div class="stat-value" style="font-size:1.25rem;color:var(--tertiary)">${macroAccuracy}%</div>
-          <span class="body-sm text-surface-variant">Target Hit</span>
-        </div>
-        <div class="stat-card" style="text-align:center">
-          <span class="stat-label" style="font-size:0.6rem">Avg Calories</span>
-          <div class="stat-value" style="font-size:1.25rem;color:var(--secondary)">${avgCals.toLocaleString()}</div>
-          <span class="body-sm text-surface-variant">kcal/day</span>
-        </div>
-      </div>
     </div>
     ${bottomNav('trends')}
   `;
   bindNav();
+
+  // Log weight
+  $('#trend-log-weight')?.addEventListener('click', () => {
+    const val = parseFloat($('#trend-weight-input')?.value);
+    if (!val || val < 20 || val > 300) return alert('Enter a valid weight (20-300 kg).');
+    const wh = Store.getData('weight_history', []);
+    wh.push(val);
+    if (wh.length > 60) wh.shift();
+    Store.setData('weight_history', wh);
+    const wd = Store.getData('weight_dates', []);
+    wd.push(Date.now());
+    if (wd.length > 60) wd.shift();
+    Store.setData('weight_dates', wd);
+    Store.setData('last_weigh_date', Date.now());
+    showGoalToast('Weight Logged', `${val} kg recorded`, '⚖️');
+    renderTrends();
+  });
+
+  // Set goal weight
+  $('#trend-set-goal-weight')?.addEventListener('click', () => {
+    const val = parseFloat($('#trend-goal-weight')?.value);
+    if (!val || val < 20 || val > 300) return alert('Enter a valid goal weight (20-300 kg).');
+    Store.setData('goal_weight', val);
+    showGoalToast('Goal Set', `Target: ${val} kg`, '🎯');
+    renderTrends();
+  });
+
+  // Log sleep
+  $('#trend-log-sleep')?.addEventListener('click', () => {
+    const val = parseFloat($('#trend-sleep-input')?.value);
+    if (!val || val < 0 || val > 24) return alert('Enter valid hours (0-24).');
+    const sh = Store.getData('sleep_history', []);
+    sh.push(val);
+    if (sh.length > 30) sh.shift();
+    Store.setData('sleep_history', sh);
+    showGoalToast('Sleep Logged', `${val}h recorded`, '😴');
+    renderTrends();
+  });
 }
 
 // ============================================

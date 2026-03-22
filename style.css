@@ -539,6 +539,19 @@ ul, ol { list-style: none; }
   animation: slideUp 0.6s ease forwards;
 }
 
+/* Heart rate pulse animation */
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.3); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.15); }
+  60% { transform: scale(1); }
+}
+.hr-pulse {
+  animation: heartbeat 0.85s ease-in-out infinite;
+  display: inline-block;
+}
+
 /* --- Page-specific: Login --- */
 .login-page {
   min-height: 100vh;
@@ -3351,6 +3364,17 @@ ul, ol { list-style: none; }
   font-size: 0.875rem;
   color: var(--primary);
   font-variant-numeric: tabular-nums;
+}
+.wp-bar-stop {
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  background: var(--error);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.75rem;
+  font-family: var(--font-body);
+  border: none;
+  cursor: pointer;
 }
 .wp-bar-resume {
   padding: 6px 16px;
